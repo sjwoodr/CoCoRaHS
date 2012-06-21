@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#2b6abf"
+    >
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:background="#2b6abf">
+        <ImageView
+            android:id="@+id/logo"
+            android:src="@drawable/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dip"
+            />
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:orientation="vertical"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:padding="10dip"
+                      android:paddingBottom="0dip"
+                      android:background="#2b6abf">
+            <TextView
+                android:id="@+id/txtTitle"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="Precipitation Report"
+                android:paddingTop="10dip"
+                android:textSize="18dip"
+                android:textColor="#ffffff"/>
+            <TextView
+                    android:id="@+id/txtStationId"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="XX-XX-NN"
+                    android:paddingTop="10dip"
+                    android:textSize="14dip"
+                    android:textColor="#ffffff"/>
+            <TextView
+                    android:id="@+id/txtStationName"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="Mt. Pleasant 1.0 NNW"
+                    android:paddingTop="10dip"
+                    android:textSize="14dip"
+                    android:textColor="#ffffff"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="10dip"
+                  android:paddingRight="10dip"
+                  android:paddingBottom="10dip"
+                  android:background="#2b6abf">
+        <TextView
+                android:id="@+id/txtObDate"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:text="Observation Date"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:textColor="#ffffff"/>
+        <EditText
+                android:id="@+id/etObDate"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:gravity="center"
+                android:background="@drawable/rounded_edittext" />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="10dip"
+                  android:paddingRight="10dip"
+                  android:paddingBottom="10dip"
+                  android:background="#2b6abf">
+        <TextView
+                android:id="@+id/txtObTime"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:text="Observation Time"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:textColor="#ffffff"/>
+        <EditText
+                android:id="@+id/etObTime"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:gravity="center"
+                android:background="@drawable/rounded_edittext" />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="10dip"
+                  android:paddingRight="10dip"
+                  android:paddingBottom="10dip"
+                  android:background="#2b6abf">
+        <TextView
+                android:id="@+id/txtObRain"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:text="Rain/Melted Snow"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:textColor="#ffffff"/>
+        <EditText
+                android:id="@+id/etObRain"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:hint="0.00&quot;"
+                android:gravity="center"
+                android:background="@drawable/rounded_edittext" />
+    </LinearLayout>
+
+
+    <Spinner
+            android:id="@+id/spnLoc"
+            android:drawSelectorOnTop="true"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_marginLeft="25dip"
+            android:layout_marginRight="25dip"
+            />
+
+    <Spinner
+            android:id="@+id/spnFlood"
+            android:drawSelectorOnTop="true"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_marginLeft="25dip"
+            android:layout_marginRight="25dip"
+            />
+
+    <Button
+        android:id="@+id/btnSubmit"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:background="@drawable/rounded_button"
+        android:textSize="18dip"
+        android:layout_gravity="center"
+        android:padding="5dip"
+        android:layout_margin="20dip"
+        android:text="     Submit     " />
+
+</LinearLayout>
+

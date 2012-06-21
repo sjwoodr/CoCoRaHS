@@ -33,7 +33,37 @@ import java.util.regex.Pattern;
  * Date: 6/21/12
  */
 public class CoCoComm {
-    public String getViewState(HttpContext localContext) {
+    private HttpContext localContext = new BasicHttpContext();
+    private CookieStore cookieStore = new BasicCookieStore();
+    private String viewState = "";
+    private String stationId = "";
+    private String stationName = "";
+
+    CoCoComm() {
+        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+    }
+
+    public String getStationName() {
+        if(stationName.equals("")) {
+            fetchStationId();
+        }
+        return stationName;
+    }
+
+    public String getStationId() {
+        if(stationId.equals("")) {
+            return fetchStationId();
+        }
+        else {
+            return stationId;
+        }
+    }
+
+    public void clearStation() {
+        stationId = stationName = "";
+    }
+
+    private String getViewState() {
         String vs = "";
 
         try {
@@ -55,7 +85,49 @@ public class CoCoComm {
             vs = findPattern(page, "__VIEWSTATE\" value=\"(.*)\"", 1);
         } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching viewState: " + e.getMessage());}
         //LOG("__VIEWSTATE = " + vs);
+        viewState = vs;
         return vs;
+    }
+
+    private String fetchStationId() {
+        String vs = "";
+        String id = "";
+        String name = "";
+        String date = "";
+        String ampm = "";
+        String time = "";
+
+        try {
+            BufferedReader in = null;
+            HttpClient client = new DefaultHttpClient();
+            HttpGet request = new HttpGet();
+            request.setURI(new URI("http://www.cocorahs.org/Admin/MyDataEntry/DailyPrecipReport.aspx"));
+            CoCoRaHS.LOG("Executing request " + request.getURI());
+            HttpResponse response = client.execute(request, localContext);
+            in = new BufferedReader
+                    (new InputStreamReader(response.getEntity().getContent()));
+            StringBuffer sb = new StringBuffer("");
+            String line = "";
+            String NL = System.getProperty("line.separator");
+            while ((line = in.readLine()) != null) {
+                sb.append(line + NL);
+            }
+            in.close();
+            String page = sb.toString();
+            vs = findPattern(page, "__VIEWSTATE\" value=\"(.*)\"", 1);
+            if((vs != null) && (!vs.equals(""))) {
+                viewState = vs;
+            }
+            id = findPattern(page, "frmReport_lblStationNumber\">(.*)</span", 1);
+            name = findPattern(page, "frmReport_lblStationName\">(.*)</span", 1);
+            date = findPattern(page, "value=\"(.*)\" id=\"frmReport_dcObsDate_t", 1);
+            ampm = findPattern(page, "option selected=\"selected\" value=\"..\">(..)</option>", 1);
+            time = findPattern(page, "input name=\"frmReport:tObsTime:txtTime\" type=\"text\" value=\"(.:..)\" maxlength", 1);
+            CoCoRaHS.LOG("Date Observed: " + date + " " + time + " " + ampm);
+        } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching viewState: " + e.getMessage());}
+        stationId = id;
+        stationName = name;
+        return id;
     }
 
     private String findPattern(String src, String pattern, int groupNum){
@@ -79,15 +151,12 @@ public class CoCoComm {
 
     public Boolean postLoginData(String url, String username, String password) {
         HttpClient httpclient = new DefaultHttpClient();
-        HttpContext localContext = new BasicHttpContext();
-        CookieStore cookieStore = new BasicCookieStore();
-        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
         Boolean login_ok = false;
         HttpPost httppost = new HttpPost(url);
         String viewState = "";
 
         CoCoRaHS.LOG("Fetching viewState...");
-        viewState = getViewState(localContext);
+        viewState = getViewState();
         if(viewState.equals("")) {
             CoCoRaHS.LOG("Failed to fetch proper viewState for login page.");
             return false;

@@ -1,0 +1,13 @@
+<resources>
+	<string-array name="yesno">
+		<item>Registered Location</item>
+		<item>Other Location</item>
+	</string-array>
+	<string-array name="flooding">
+		<item>No flooding occurred</item>
+		<item>Minor (typical). Street or field flooding</item>
+		<item>Unusual street or field flooding (only see this every few years)</item>
+		<item>Severe Flooding</item>
+		<item>Extreme (never seen it this bad before)</item>
+	</string-array>
+</resources>

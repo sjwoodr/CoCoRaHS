@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 public class CoCoRaHS extends Activity
 {
 
@@ -99,7 +102,7 @@ public class CoCoRaHS extends Activity
     }
 
     public void TOAST(String msg) {
-        Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
     }
 
     void showOKAlertMsg(String title, String msg, final Boolean xfinish) {
@@ -124,15 +127,19 @@ public class CoCoRaHS extends Activity
 
     class LoginTask extends AsyncTask<String, Void, Boolean> {
         private Exception exception;
+        CoCoComm comm = new CoCoComm();
 
         protected Boolean doInBackground(String... args) {
-            CoCoComm comm = new CoCoComm();
+
             try {
                 String url = args[0];
                 String username = args[1];
                 String password = args[2];
+                comm.clearStation();
                 if(comm.postLoginData(url, username, password)) {
                     LOG("Login OK.");
+                    LOG("Station ID: " + comm.getStationId());
+                    LOG("Station Name: " + comm.getStationName());
                     return true;
                 }
                 else {
@@ -148,6 +155,33 @@ public class CoCoRaHS extends Activity
         protected void onPostExecute(Boolean result) {
             if(result) {
                 TOAST("Login OK");
+                setContentView(R.layout.report);
+                TextView tvId = (TextView) findViewById(R.id.txtStationId);
+                if(tvId != null) {
+                    tvId.setText(comm.getStationId());
+                }
+                TextView tvName = (TextView) findViewById(R.id.txtStationName);
+                if(tvName != null) {
+                    tvName.setText(comm.getStationName());
+                }
+                Spinner spnLoc = (Spinner) findViewById(R.id.spnLoc);
+                ArrayAdapter<CharSequence> levelsAdapter = null;
+                levelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.yesno , android.R.layout.simple_spinner_item);
+                levelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spnLoc.setAdapter(levelsAdapter);
+                Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
+                ArrayAdapter<CharSequence> floodlevelsAdapter = null;
+                floodlevelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.flooding , android.R.layout.simple_spinner_item);
+                floodlevelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spnFlood.setAdapter(floodlevelsAdapter);
+                EditText etDate = (EditText) findViewById(R.id.etObDate);
+                if(etDate != null) {
+                    Calendar cal = new GregorianCalendar();
+                    int month = cal.get(Calendar.MONTH);
+                    int year = cal.get(Calendar.YEAR);
+                    int day = cal.get(Calendar.DAY_OF_MONTH);
+                    etDate.setText("" + (month+1) + "/" + day + "/" + year);
+                }
             }
             else {
                 showOKAlertMsg("Whoops!", "Login Failed.  Check your username and password then try again.", false);
