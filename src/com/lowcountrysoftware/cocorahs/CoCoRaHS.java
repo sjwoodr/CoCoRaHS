@@ -10,28 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import com.lowcountrysoftware.cocorahs.R;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-import java.io.*;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CoCoRaHS extends Activity
 {
@@ -114,7 +92,7 @@ public class CoCoRaHS extends Activity
         return mySharedPrefs.getString(key, "");
     }
 
-    public void LOG(String msg) {
+    public static void LOG(String msg) {
         if(msg != null) {
             Log.v("CoCoRaHS", msg);
         }
@@ -122,107 +100,6 @@ public class CoCoRaHS extends Activity
 
     public void TOAST(String msg) {
         Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
-    }
-
-    public String getViewState(HttpContext localContext) {
-        String vs = "";
-
-        try {
-            BufferedReader in = null;
-            HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet();
-            request.setURI(new URI("http://www.cocorahs.org/Login.aspx"));
-            HttpResponse response = client.execute(request, localContext);
-            in = new BufferedReader
-                    (new InputStreamReader(response.getEntity().getContent()));
-            StringBuffer sb = new StringBuffer("");
-            String line = "";
-            String NL = System.getProperty("line.separator");
-            while ((line = in.readLine()) != null) {
-                sb.append(line + NL);
-            }
-            in.close();
-            String page = sb.toString();
-            vs = findPattern(page, "__VIEWSTATE\" value=\"(.*)\"", 1);
-        } catch (Exception e) { LOG("Exception occurred while fetching viewState: " + e.getMessage());}
-        LOG("__VIEWSTATE = " + vs);
-        return vs;
-    }
-
-    private String findPattern(String src, String pattern, int groupNum){
-        Pattern pp = Pattern.compile(pattern);
-        Matcher m = pp.matcher(src);
-        String result = "";
-        try {
-            while (m.find()) {
-                if(groupNum <= m.groupCount()) {
-                    result = m.group(groupNum);
-                } else {
-                    LOG("findPattern::Group not found!");
-                }
-            }
-        }
-        catch (Exception e) {
-            LOG(e.getMessage());
-        }
-        return result;
-    }
-
-    public Boolean postLoginData(String url, String username, String password) {
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpContext localContext = new BasicHttpContext();
-        CookieStore cookieStore = new BasicCookieStore();
-        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
-        Boolean login_ok = false;
-        HttpPost httppost = new HttpPost(url);
-        String viewState = "";
-
-        LOG("Fetching viewState...");
-        viewState = getViewState(localContext);
-        if(viewState.equals("")) {
-            LOG("Failed to fetch proper viewState for login page.");
-            return false;
-        }
-
-        try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(5);
-            nameValuePairs.add(new BasicNameValuePair("__VIEWSTATE", viewState));
-            nameValuePairs.add(new BasicNameValuePair("txtUsername", username));
-            nameValuePairs.add(new BasicNameValuePair("txtPassword", password));
-            nameValuePairs.add(new BasicNameValuePair("cbSaveLogin","on"));
-            nameValuePairs.add(new BasicNameValuePair("btnLogin", "Log+In"));
-            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
-            LOG("Executing request " + httppost.getURI());
-            HttpResponse response = httpclient.execute(httppost, localContext);
-
-            String str = inputStreamToString(response.getEntity().getContent()).toString();
-            String match = findPattern(str, "(DailyPrecipReport.aspx)", 1);
-            if(match.contains("DailyPrecipReport.aspx")) {
-                login_ok = true;
-            }
-
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return login_ok;
-    }
-
-    private StringBuilder inputStreamToString(InputStream is) {
-        String line = "";
-        StringBuilder total = new StringBuilder();
-        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-        try {
-            while ((line = rd.readLine()) != null) {
-                total.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            LOG("Exception in inputStreamToString(): " + e.getMessage());
-        }
-        return total;
     }
 
     void showOKAlertMsg(String title, String msg, final Boolean xfinish) {
@@ -246,15 +123,15 @@ public class CoCoRaHS extends Activity
     }
 
     class LoginTask extends AsyncTask<String, Void, Boolean> {
-
         private Exception exception;
 
         protected Boolean doInBackground(String... args) {
+            CoCoComm comm = new CoCoComm();
             try {
                 String url = args[0];
                 String username = args[1];
                 String password = args[2];
-                if(postLoginData(url, username, password)) {
+                if(comm.postLoginData(url, username, password)) {
                     LOG("Login OK.");
                     return true;
                 }
