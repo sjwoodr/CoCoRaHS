@@ -176,11 +176,11 @@ public class CoCoRaHS extends Activity
                 spnFlood.setAdapter(floodlevelsAdapter);
                 EditText etDate = (EditText) findViewById(R.id.etObDate);
                 if(etDate != null) {
-                    Calendar cal = new GregorianCalendar();
-                    int month = cal.get(Calendar.MONTH);
-                    int year = cal.get(Calendar.YEAR);
-                    int day = cal.get(Calendar.DAY_OF_MONTH);
-                    etDate.setText("" + (month+1) + "/" + day + "/" + year);
+                    etDate.setText(comm.getObservedDate());
+                }
+                EditText etTime = (EditText) findViewById(R.id.etObTime);
+                if(etTime != null) {
+                    etTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
                 }
             }
             else {

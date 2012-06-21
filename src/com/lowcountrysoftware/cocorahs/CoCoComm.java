@@ -38,6 +38,10 @@ public class CoCoComm {
     private String viewState = "";
     private String stationId = "";
     private String stationName = "";
+    private String observedAmPm = "";
+    private String observedTime = "";
+    private String observedDate = "";
+
 
     CoCoComm() {
         localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
@@ -49,6 +53,10 @@ public class CoCoComm {
         }
         return stationName;
     }
+
+    public String getObservedAmPm() { return observedAmPm; }
+    public String getObservedDate() { return observedDate; }
+    public String getObservedTime() { return observedTime; }
 
     public String getStationId() {
         if(stationId.equals("")) {
@@ -120,17 +128,20 @@ public class CoCoComm {
             }
             id = findPattern(page, "frmReport_lblStationNumber\">(.*)</span", 1);
             name = findPattern(page, "frmReport_lblStationName\">(.*)</span", 1);
-            date = findPattern(page, "value=\"(.*)\" id=\"frmReport_dcObsDate_t", 1);
+            date = findPattern(page, "value=\"(.*)\" id=\"frmReport_dcObsDate\"", 1);
             ampm = findPattern(page, "option selected=\"selected\" value=\"..\">(..)</option>", 1);
             time = findPattern(page, "input name=\"frmReport:tObsTime:txtTime\" type=\"text\" value=\"(.:..)\" maxlength", 1);
             CoCoRaHS.LOG("Date Observed: " + date + " " + time + " " + ampm);
         } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching viewState: " + e.getMessage());}
         stationId = id;
         stationName = name;
+        observedTime = time;
+        observedDate = date;
+        observedAmPm = ampm;
         return id;
     }
 
-    private String findPattern(String src, String pattern, int groupNum){
+    public static String findPattern(String src, String pattern, int groupNum){
         Pattern pp = Pattern.compile(pattern);
         Matcher m = pp.matcher(src);
         String result = "";
