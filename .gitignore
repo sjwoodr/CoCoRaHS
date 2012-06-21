@@ -1,0 +1,15 @@
+*~
+*.swp
+*.class
+*.apk
+*.dex
+bin/**/*
+gen/**/*
+bin/*
+out/*
+gen/*
+.DS_Store
+.DS_Store*/
+workspace.xml
+tasks.xml
+
