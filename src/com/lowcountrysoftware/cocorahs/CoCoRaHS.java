@@ -2,6 +2,8 @@ package com.lowcountrysoftware.cocorahs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -9,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.*;
 
 import java.util.Calendar;
@@ -18,6 +21,7 @@ public class CoCoRaHS extends Activity
 {
 
     Context mContext = null;
+    ProgressDialog progressDialog = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -73,10 +77,20 @@ public class CoCoRaHS extends Activity
                             savePreference("password", "", mContext);
                         }
                     }
+                    progressDialog = ProgressDialog.show(CoCoRaHS.this, "", "Authenticating...", true);
                     new LoginTask().execute("http://www.cocorahs.org/Login.aspx", username, password);
                 }
             });
         }
+    }
+
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog = null;
+        switch (id) {
+            default:
+                dialog = null;
+        }
+        return dialog;
     }
 
     public static String savePreference(String key, String value, Context c) {
@@ -153,6 +167,9 @@ public class CoCoRaHS extends Activity
         }
 
         protected void onPostExecute(Boolean result) {
+            try {
+                progressDialog.dismiss();
+            } catch (Exception e) {}
             if(result) {
                 TOAST("Login OK");
                 setContentView(R.layout.report);
