@@ -42,7 +42,6 @@ public class CoCoComm {
     private String observedTime = "";
     private String observedDate = "";
 
-
     CoCoComm() {
         localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
     }
@@ -199,12 +198,72 @@ public class CoCoComm {
         return login_ok;
     }
 
+    public Boolean postPrecipReport(String url) {
+        HttpClient httpclient = new DefaultHttpClient();
+        Boolean report_ok = false;
+        HttpPost httppost = new HttpPost(url);
+
+        CoCoRaHS.LOG("Using viewstate: " + viewState);
+        try {
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(22);
+            nameValuePairs.add(new BasicNameValuePair("__EVENTTARGET", ""));
+            nameValuePairs.add(new BasicNameValuePair("__EVENTARGUMENT", ""));
+            nameValuePairs.add(new BasicNameValuePair("VAM_Group", ""));
+            nameValuePairs.add(new BasicNameValuePair("__VIEWSTATE", viewState));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:btnSubmitTop", "Submit Data"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:dcObsDate", "6/22/2012"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport_dcObsDate_p","2012-6-22-0-0-0-0"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:tObsTime:txtTime", "7:00"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:tObsTime:ddlAmPm", "AM"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prTotalPrecip:tbPrecip", "0.00"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:rblTakenAtRegisteredLocation", "1"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:txtNotes", "hot and dry"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prNewSnowAmount:tbPrecip", "NA"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prSnowCore:tbPrecip", "NA"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prTotalSnowDepth:tbPrecip", "NA"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prSWE:tbPrecip", "NA"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:tbPrecipBegan", ""));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:tbPrecipEnded", ""));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:tbHeavyPrecipBegan", ""));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:tbHeavyPrecipMinLasted", ""));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:ddlPrecipTimeAccuracy", ""));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:ddlFlooding", "No"));
+
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+            CoCoRaHS.LOG("Executing request " + httppost.getURI());
+            HttpResponse response = httpclient.execute(httppost, localContext);
+
+            String str = inputStreamToString(response.getEntity().getContent()).toString();
+            CoCoRaHS.LOG("Debug: " + str);
+
+            if(str.contains("to edit the existing report")) {
+                report_ok = false;
+                report_ok_reason = "A report for this date already exists.";
+                report_ok_callback = "";
+            }
+            else {
+                String match = findPattern(str, "(ViewDailyPrecipReport.aspx)", 1);
+                if(match.contains("ViewDailyPrecipReport.aspx")) {
+                    report_ok = true;
+                }
+            }
+
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return report_ok;
+    }
+
     private StringBuilder inputStreamToString(InputStream is) {
         String line = "";
         StringBuilder total = new StringBuilder();
         BufferedReader rd = new BufferedReader(new InputStreamReader(is));
         try {
             while ((line = rd.readLine()) != null) {
+                CoCoRaHS.LOG("XXX: " + line);
                 total.append(line);
             }
         } catch (IOException e) {

@@ -22,6 +22,7 @@ public class CoCoRaHS extends Activity
 
     Context mContext = null;
     ProgressDialog progressDialog = null;
+    CoCoComm comm = new CoCoComm();
 
     /** Called when the activity is first created. */
     @Override
@@ -31,6 +32,10 @@ public class CoCoRaHS extends Activity
         setContentView(R.layout.main);
         mContext = this;
 
+        handleButtons();
+    }
+
+    private void handleButtons() {
         CheckBox cbSaveLogin = (CheckBox) findViewById(R.id.cbSaveLogin);
         if(cbSaveLogin != null) {
             String username = getPreference("username", mContext);
@@ -49,6 +54,16 @@ public class CoCoRaHS extends Activity
             else {
                 cbSaveLogin.setChecked(false);
             }
+        }
+
+        Button btnSubmitPrecip = (Button) findViewById(R.id.btnSubmit);
+        if(btnSubmitPrecip != null) {
+            btnSubmitPrecip.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    progressDialog = ProgressDialog.show(CoCoRaHS.this, "", "Submitting...", true);
+                    new PrecipTask().execute("http://www.cocorahs.org/Admin/MyDataEntry/DailyPrecipReport.aspx");
+                }
+            });
         }
 
         Button btnLogin = (Button) findViewById(R.id.btnLogin);
@@ -141,7 +156,6 @@ public class CoCoRaHS extends Activity
 
     class LoginTask extends AsyncTask<String, Void, Boolean> {
         private Exception exception;
-        CoCoComm comm = new CoCoComm();
 
         protected Boolean doInBackground(String... args) {
 
@@ -173,6 +187,7 @@ public class CoCoRaHS extends Activity
             if(result) {
                 TOAST("Login OK");
                 setContentView(R.layout.report);
+                handleButtons();
                 TextView tvId = (TextView) findViewById(R.id.txtStationId);
                 if(tvId != null) {
                     tvId.setText(comm.getStationId());
@@ -202,6 +217,40 @@ public class CoCoRaHS extends Activity
             }
             else {
                 showOKAlertMsg("Whoops!", "Login Failed.  Check your username and password then try again.", false);
+            }
+        }
+    }
+
+    class PrecipTask extends AsyncTask<String, Void, Boolean> {
+        private Exception exception;
+
+        protected Boolean doInBackground(String... args) {
+
+            try {
+                String url = args[0];
+                comm.clearStation();
+                if(comm.postPrecipReport(url)) {
+                    LOG("Precip Report Sent OK.");
+                    return true;
+                }
+                else {
+                    LOG("Failed to send precip report.");
+                    return false;
+                }
+            } catch (Exception e) {
+                this.exception = e;
+                return null;
+            }
+        }
+
+        protected void onPostExecute(Boolean result) {
+            try {
+                progressDialog.dismiss();
+            } catch (Exception e) {}
+            if(result) {
+            }
+            else {
+                showOKAlertMsg("Whoops!", "Failed to send the precipitation report to CoCoRaHS: Try again.", false);
             }
         }
     }
