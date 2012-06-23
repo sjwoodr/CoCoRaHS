@@ -16,6 +16,7 @@ import android.view.Window;
 import android.widget.*;
 import com.placed.client.android.PlacedAgent;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -287,10 +288,14 @@ public class CoCoRaHS extends Activity
             try {
                 progressDialog.dismiss();
             } catch (Exception e) {}
-            if(result) {
+            if(result == null) {
+                 showOKAlertMsg("Whoops!", "An error occurred: Make sure all fields are entered correctly.  Exception: " + exception.getMessage(), false);
+            }
+            else if(result) {
                 showOKAlertMsg("Success!", "Thank you for submitting your daily precipation report.", false);
                 setContentView(R.layout.history);
-                // TODO:
+                ArrayList<CoCoRecord> history = comm.getPrecipHistory(7);
+                //TODO: display precip report history
             }
             else {
                 if(! comm.getReportOkReason().equals("")) {

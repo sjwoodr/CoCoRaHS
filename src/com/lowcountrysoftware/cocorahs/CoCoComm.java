@@ -44,7 +44,6 @@ public class CoCoComm {
     private String observedTime = "";
     private String observedDate = "";
     private String report_ok_reason = "";
-    private String report_ok_callback = "";
 
     CoCoComm() {
         localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
@@ -96,13 +95,12 @@ public class CoCoComm {
             String page = sb.toString();
             vs = findPattern(page, "__VIEWSTATE\" value=\"(.*)\"", 1);
         } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching viewState: " + e.getMessage());}
-        //LOG("__VIEWSTATE = " + vs);
         viewState = vs;
         return vs;
     }
 
-    private String getPrecipHistory() {
-        String vs = "";
+    public ArrayList<CoCoRecord> getPrecipHistory(int maxdays) {
+        ArrayList<CoCoRecord> history = new ArrayList<CoCoRecord>();
 
         try {
             BufferedReader in = null;
@@ -121,7 +119,7 @@ public class CoCoComm {
             in.close();
             String page = sb.toString();
         } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching history: " + e.getMessage());}
-        return vs;
+        return history;
     }
 
     private String fetchStationId() {
@@ -282,7 +280,6 @@ public class CoCoComm {
             HttpResponse response = httpclient.execute(httppost, localContext);
 
             String str = inputStreamToString(response.getEntity().getContent()).toString();
-            CoCoRaHS.LOG("Debug: " + str);
 
             HashSet<String> attribs = new HashSet<String>();
             if(str.contains("to edit the existing report")) {
@@ -290,11 +287,13 @@ public class CoCoComm {
                 attribs.add("report_failed_dupe");
                 CoCoRaHS.placedAgent.logCustomEvent("postPrecipReport", attribs);
                 report_ok_reason = "A report for this date already exists.";
-                report_ok_callback = "";        //TODO: set this to the url given in the response
             }
-            else if(str.contains("class='VAMValSummaryErrors'><li>Total Precipitation is required.</li>")) {
+            else if(str.contains("class='VAMValSummaryErrors'><li>")) {
                 report_ok_reason = findPattern(str, "class='VAMValSummaryErrors'><li>(.*)</li>", 1);
+                report_ok_reason = report_ok_reason.replaceAll("</li><li>", " ");
                 CoCoRaHS.LOG("ERROR: " + report_ok_reason);
+                attribs.add("report_failed_validation");
+                CoCoRaHS.placedAgent.logCustomEvent("postPrecipReport", attribs);
             }
             else {
                 String match = findPattern(str, "(ViewDailyPrecipReport.aspx)", 1);
