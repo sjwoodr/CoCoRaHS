@@ -60,6 +60,7 @@ public class CoCoComm {
     public String getObservedAmPm() { return observedAmPm; }
     public String getObservedDate() { return observedDate; }
     public String getObservedTime() { return observedTime; }
+    public String getReportOkReason() { return report_ok_reason; }
 
     public String getStationId() {
         if(stationId.equals("")) {
@@ -97,6 +98,29 @@ public class CoCoComm {
         } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching viewState: " + e.getMessage());}
         //LOG("__VIEWSTATE = " + vs);
         viewState = vs;
+        return vs;
+    }
+
+    private String getPrecipHistory() {
+        String vs = "";
+
+        try {
+            BufferedReader in = null;
+            HttpClient client = new DefaultHttpClient();
+            HttpGet request = new HttpGet();
+            request.setURI(new URI("http://www.cocorahs.org/Admin/MyDataEntry/ListDailyPrecipReports.aspx"));
+            HttpResponse response = client.execute(request, localContext);
+            in = new BufferedReader
+                    (new InputStreamReader(response.getEntity().getContent()));
+            StringBuffer sb = new StringBuffer("");
+            String line = "";
+            String NL = System.getProperty("line.separator");
+            while ((line = in.readLine()) != null) {
+                sb.append(line + NL);
+            }
+            in.close();
+            String page = sb.toString();
+        } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching history: " + e.getMessage());}
         return vs;
     }
 
@@ -208,12 +232,26 @@ public class CoCoComm {
         return login_ok;
     }
 
-    public Boolean postPrecipReport(String url) {
+    public Boolean postPrecipReport(String url, String date, String time, String rain, String regLocation, String flooding) {
         HttpClient httpclient = new DefaultHttpClient();
         Boolean report_ok = false;
         HttpPost httppost = new HttpPost(url);
+        String loc = "1";
+        String ampm = "AM";
+        if(time.contains("PM")) {
+            ampm = "PM";
+        }
+        time = time.replaceAll(" AM", "").replaceAll(" PM", "");
+        if(! regLocation.equals("Registered Location")) {
+            loc = "0";
+        }
+        int d = flooding.indexOf(" ");
+        if (d > 0) {
+            flooding = flooding.substring(0, d);
+        }
+        String[] dateParts = date.split("/");
+        String funkyDate = dateParts[2] + "-" + dateParts[0] + "-" + dateParts[1] + "-0-0-0-0";
 
-        CoCoRaHS.LOG("Using viewstate: " + viewState);
         try {
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(22);
             nameValuePairs.add(new BasicNameValuePair("__EVENTTARGET", ""));
@@ -221,13 +259,13 @@ public class CoCoComm {
             nameValuePairs.add(new BasicNameValuePair("VAM_Group", ""));
             nameValuePairs.add(new BasicNameValuePair("__VIEWSTATE", viewState));
             nameValuePairs.add(new BasicNameValuePair("frmReport:btnSubmitTop", "Submit Data"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:dcObsDate", "6/22/2012"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport_dcObsDate_p","2012-6-22-0-0-0-0"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:tObsTime:txtTime", "7:00"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:tObsTime:ddlAmPm", "AM"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:prTotalPrecip:tbPrecip", "0.00"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:rblTakenAtRegisteredLocation", "1"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:txtNotes", "hot and dry"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:dcObsDate", date));
+            nameValuePairs.add(new BasicNameValuePair("frmReport_dcObsDate_p", funkyDate));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:tObsTime:txtTime", time));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:tObsTime:ddlAmPm", ampm));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prTotalPrecip:tbPrecip", rain));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:rblTakenAtRegisteredLocation", loc));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:txtNotes", "Submitted via CoCoRaHS Observer for Android"));
             nameValuePairs.add(new BasicNameValuePair("frmReport:prNewSnowAmount:tbPrecip", "NA"));
             nameValuePairs.add(new BasicNameValuePair("frmReport:prSnowCore:tbPrecip", "NA"));
             nameValuePairs.add(new BasicNameValuePair("frmReport:prTotalSnowDepth:tbPrecip", "NA"));
@@ -237,7 +275,7 @@ public class CoCoComm {
             nameValuePairs.add(new BasicNameValuePair("frmReport:tbHeavyPrecipBegan", ""));
             nameValuePairs.add(new BasicNameValuePair("frmReport:tbHeavyPrecipMinLasted", ""));
             nameValuePairs.add(new BasicNameValuePair("frmReport:ddlPrecipTimeAccuracy", ""));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:ddlFlooding", "No"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:ddlFlooding", flooding));
 
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
             CoCoRaHS.LOG("Executing request " + httppost.getURI());
@@ -253,6 +291,10 @@ public class CoCoComm {
                 CoCoRaHS.placedAgent.logCustomEvent("postPrecipReport", attribs);
                 report_ok_reason = "A report for this date already exists.";
                 report_ok_callback = "";        //TODO: set this to the url given in the response
+            }
+            else if(str.contains("class='VAMValSummaryErrors'><li>Total Precipitation is required.</li>")) {
+                report_ok_reason = findPattern(str, "class='VAMValSummaryErrors'><li>(.*)</li>", 1);
+                CoCoRaHS.LOG("ERROR: " + report_ok_reason);
             }
             else {
                 String match = findPattern(str, "(ViewDailyPrecipReport.aspx)", 1);

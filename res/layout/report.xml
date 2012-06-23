@@ -131,7 +131,8 @@
                 android:layout_width="0px"
                 android:padding="10dip"
                 android:textSize="14dip"
-                android:hint="0.00&quot;"
+                android:text="0.00"
+                android:hint="measured in inches"
                 android:gravity="center"
                 android:background="@drawable/rounded_edittext" />
     </LinearLayout>

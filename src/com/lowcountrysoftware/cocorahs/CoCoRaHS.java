@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.test.suitebuilder.TestSuiteBuilder;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -75,8 +76,18 @@ public class CoCoRaHS extends Activity
         if(btnSubmitPrecip != null) {
             btnSubmitPrecip.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    progressDialog = ProgressDialog.show(CoCoRaHS.this, "", "Submitting...", true);
-                    new PrecipTask().execute("http://www.cocorahs.org/Admin/MyDataEntry/DailyPrecipReport.aspx");
+                    EditText etObTime = (EditText) findViewById(R.id.etObTime);
+                    EditText etObDate = (EditText) findViewById(R.id.etObDate);
+                    EditText etObRain = (EditText) findViewById(R.id.etObRain);
+                    Spinner spnLoc = (Spinner) findViewById(R.id.spnLoc);
+                    Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
+                    if(etObTime != null && etObDate != null && etObRain != null && spnLoc != null && spnFlood != null) {
+                        progressDialog = ProgressDialog.show(CoCoRaHS.this, "", "Submitting...", true);
+                        new PrecipTask().execute("http://www.cocorahs.org/Admin/MyDataEntry/DailyPrecipReport.aspx",
+                                etObDate.getText().toString().trim(), etObTime.getText().toString().trim(),
+                                etObRain.getText().toString().trim(),
+                                spnLoc.getSelectedItem().toString(), spnFlood.getSelectedItem().toString());
+                    }
                 }
             });
         }
@@ -212,6 +223,14 @@ public class CoCoRaHS extends Activity
                 if(tvName != null) {
                     tvName.setText(comm.getStationName());
                 }
+
+                EditText etObTime = (EditText) findViewById(R.id.etObTime);
+                EditText etObDate = (EditText) findViewById(R.id.etObDate);
+                if(etObTime != null && etObDate != null) {
+                    etObDate.setText(comm.getObservedDate());
+                    etObTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
+                }
+
                 Spinner spnLoc = (Spinner) findViewById(R.id.spnLoc);
                 ArrayAdapter<CharSequence> levelsAdapter = null;
                 levelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.yesno , android.R.layout.simple_spinner_item);
@@ -244,8 +263,13 @@ public class CoCoRaHS extends Activity
 
             try {
                 String url = args[0];
+                String date = args[1];
+                String time = args[2];
+                String rain = args[3];
+                String loc = args[4];
+                String flooding = args[5];
                 comm.clearStation();
-                if(comm.postPrecipReport(url)) {
+                if(comm.postPrecipReport(url,date,time,rain,loc,flooding)) {
                     LOG("Precip Report Sent OK.");
                     return true;
                 }
@@ -264,9 +288,17 @@ public class CoCoRaHS extends Activity
                 progressDialog.dismiss();
             } catch (Exception e) {}
             if(result) {
+                showOKAlertMsg("Success!", "Thank you for submitting your daily precipation report.", false);
+                setContentView(R.layout.history);
+                // TODO:
             }
             else {
-                showOKAlertMsg("Whoops!", "Failed to send the precipitation report to CoCoRaHS: Try again.", false);
+                if(! comm.getReportOkReason().equals("")) {
+                    showOKAlertMsg("Whoops!", "Failed to send the precipitation report to CoCoRaHS: " + comm.getReportOkReason(), false);
+                }
+                else {
+                    showOKAlertMsg("Whoops!", "Failed to send the precipitation report to CoCoRaHS: Try again.", false);
+                }
             }
         }
     }
