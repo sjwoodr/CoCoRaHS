@@ -22,7 +22,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +43,8 @@ public class CoCoComm {
     private String observedAmPm = "";
     private String observedTime = "";
     private String observedDate = "";
+    private String report_ok_reason = "";
+    private String report_ok_callback = "";
 
     CoCoComm() {
         localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
@@ -185,8 +189,14 @@ public class CoCoComm {
 
             String str = inputStreamToString(response.getEntity().getContent()).toString();
             String match = findPattern(str, "(DailyPrecipReport.aspx)", 1);
+            HashSet<String> attribs = new HashSet<String>();
             if(match.contains("DailyPrecipReport.aspx")) {
                 login_ok = true;
+                attribs.add("login_ok");
+                CoCoRaHS.placedAgent.logCustomEvent("postLoginData", attribs);
+            } else {
+                attribs.add("login_failed");
+                CoCoRaHS.placedAgent.logCustomEvent("postLoginData", attribs);
             }
 
         } catch (ClientProtocolException e) {
@@ -236,15 +246,20 @@ public class CoCoComm {
             String str = inputStreamToString(response.getEntity().getContent()).toString();
             CoCoRaHS.LOG("Debug: " + str);
 
+            HashSet<String> attribs = new HashSet<String>();
             if(str.contains("to edit the existing report")) {
                 report_ok = false;
+                attribs.add("report_failed_dupe");
+                CoCoRaHS.placedAgent.logCustomEvent("postPrecipReport", attribs);
                 report_ok_reason = "A report for this date already exists.";
-                report_ok_callback = "";
+                report_ok_callback = "";        //TODO: set this to the url given in the response
             }
             else {
                 String match = findPattern(str, "(ViewDailyPrecipReport.aspx)", 1);
                 if(match.contains("ViewDailyPrecipReport.aspx")) {
                     report_ok = true;
+                    attribs.add("report_ok");
+                    CoCoRaHS.placedAgent.logCustomEvent("postPrecipReport", attribs);
                 }
             }
 

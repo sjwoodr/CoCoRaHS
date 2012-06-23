@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.*;
+import com.placed.client.android.PlacedAgent;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -23,6 +24,7 @@ public class CoCoRaHS extends Activity
     Context mContext = null;
     ProgressDialog progressDialog = null;
     CoCoComm comm = new CoCoComm();
+    static PlacedAgent placedAgent = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -31,8 +33,21 @@ public class CoCoRaHS extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mContext = this;
-
+        placedAgent = PlacedAgent.getInstance(mContext, "c6ff9337c4f9");
         handleButtons();
+        placedAgent.logPageView("Login Screen");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        placedAgent.logStartSession();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        placedAgent.logEndSession();
     }
 
     private void handleButtons() {
@@ -187,6 +202,7 @@ public class CoCoRaHS extends Activity
             if(result) {
                 TOAST("Login OK");
                 setContentView(R.layout.report);
+                placedAgent.logPageView("Precip Report");
                 handleButtons();
                 TextView tvId = (TextView) findViewById(R.id.txtStationId);
                 if(tvId != null) {

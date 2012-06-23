@@ -38,6 +38,7 @@
     </content>
     <orderEntry type="jdk" jdkName="Android 2.1 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="placed-android-sdk-2.11" level="project" />
   </component>
 </module>
 
