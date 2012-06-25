@@ -11,8 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.test.suitebuilder.TestSuiteBuilder;
 import android.util.Log;
-import android.view.View;
-import android.view.Window;
+import android.view.*;
 import android.widget.*;
 import com.placed.client.android.PlacedAgent;
 
@@ -27,6 +26,7 @@ public class CoCoRaHS extends Activity
     ProgressDialog progressDialog = null;
     CoCoComm comm = new CoCoComm();
     static PlacedAgent placedAgent = null;
+    Menu cocoMenu = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -50,6 +50,25 @@ public class CoCoRaHS extends Activity
     public void onDestroy() {
         super.onDestroy();
         placedAgent.logEndSession();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        cocoMenu = menu;
+        getMenuInflater().inflate(R.menu.option_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.history:
+                showHistory();
+                return true;
+        }
+        return false;
     }
 
     private void handleButtons() {
@@ -181,6 +200,12 @@ public class CoCoRaHS extends Activity
         }
     }
 
+    private void showHistory() {
+        setContentView(R.layout.history);
+        ArrayList<CoCoRecord> history = comm.getPrecipHistory(7);
+        //TODO: display precip report history
+    }
+
     class LoginTask extends AsyncTask<String, Void, Boolean> {
         private Exception exception;
 
@@ -293,9 +318,7 @@ public class CoCoRaHS extends Activity
             }
             else if(result) {
                 showOKAlertMsg("Success!", "Thank you for submitting your daily precipation report.", false);
-                setContentView(R.layout.history);
-                ArrayList<CoCoRecord> history = comm.getPrecipHistory(7);
-                //TODO: display precip report history
+                showHistory();
             }
             else {
                 if(! comm.getReportOkReason().equals("")) {
