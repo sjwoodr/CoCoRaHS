@@ -1,4 +1,4 @@
-package com.lowcountrysoftware.cocorahs;
+package com.appcay.cocorahs;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;

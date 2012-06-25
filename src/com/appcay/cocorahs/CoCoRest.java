@@ -1,4 +1,4 @@
-package com.lowcountrysoftware.cocorahs;
+package com.appcay.cocorahs;
 
 /**
  * Created with IntelliJ IDEA.

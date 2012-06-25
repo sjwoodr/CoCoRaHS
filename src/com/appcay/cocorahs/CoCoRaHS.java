@@ -1,4 +1,4 @@
-package com.lowcountrysoftware.cocorahs;
+package com.appcay.cocorahs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
