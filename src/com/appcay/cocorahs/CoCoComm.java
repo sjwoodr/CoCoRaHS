@@ -15,6 +15,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -108,16 +111,22 @@ public class CoCoComm {
             HttpGet request = new HttpGet();
             request.setURI(new URI("http://www.cocorahs.org/Admin/MyDataEntry/ListDailyPrecipReports.aspx"));
             HttpResponse response = client.execute(request, localContext);
-            in = new BufferedReader
-                    (new InputStreamReader(response.getEntity().getContent()));
-            StringBuffer sb = new StringBuffer("");
-            String line = "";
-            String NL = System.getProperty("line.separator");
-            while ((line = in.readLine()) != null) {
-                sb.append(line + NL);
+
+            String page = inputStreamToString(response.getEntity().getContent()).toString();
+            String vs = findPattern(page, "__VIEWSTATE\" value=\"(.*)\"", 1);
+            if((vs != null) && (!vs.equals(""))) {
+                viewState = vs;
             }
-            in.close();
-            String page = sb.toString();
+
+            Document doc = Jsoup.parse(page);
+            for(int x=0; x< 7; x++) {
+                // look for items that ar <tr> and class name ends with Item (GridItem, GridAltItem)
+                Element gridItem = doc.select("tr[class$=Item]").select("tr").get(x);
+                //CoCoRaHS.LOG("gridItem: " + gridItem.toString());
+                CoCoRaHS.LOG("row: " + gridItem.select("td").get(0).text() + " " + gridItem.select("td").get(1).text()
+                        + " " + gridItem.select("td").get(4).text() + " " + gridItem.select("a").get(0).attr("href"));
+            }
+
         } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching history: " + e.getMessage());}
         return history;
     }
@@ -173,6 +182,7 @@ public class CoCoComm {
         try {
             while (m.find()) {
                 if(groupNum <= m.groupCount()) {
+                    CoCoRaHS.LOG("Found " + m.groupCount() + " matching groups");
                     result = m.group(groupNum);
                 } else {
                     CoCoRaHS.LOG("findPattern::Group not found!");
@@ -319,7 +329,6 @@ public class CoCoComm {
         BufferedReader rd = new BufferedReader(new InputStreamReader(is));
         try {
             while ((line = rd.readLine()) != null) {
-                CoCoRaHS.LOG("XXX: " + line);
                 total.append(line);
             }
         } catch (IOException e) {
