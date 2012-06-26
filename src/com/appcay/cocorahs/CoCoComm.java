@@ -118,12 +118,14 @@ public class CoCoComm {
             }
 
             Document doc = Jsoup.parse(page);
+            history.clear();
             for(int x=0; x< maxdays; x++) {
                 // look for items that ar <tr> and class name ends with Item (GridItem, GridAltItem)
                 Element gridItem = doc.select("tr[class$=Item]").select("tr").get(x);
-                //CoCoRaHS.LOG("gridItem: " + gridItem.toString());
-                CoCoRaHS.LOG("row: " + gridItem.select("td").get(0).text() + " " + gridItem.select("td").get(1).text()
-                        + " " + gridItem.select("td").get(4).text() + " " + gridItem.select("a").get(0).attr("href"));
+                CoCoRecord historyItem = new CoCoRecord(gridItem.select("td").get(0).text(),
+                        gridItem.select("td").get(1).text(), stationId, stationName,
+                        gridItem.select("td").get(4).text(), gridItem.select("a").get(0).attr("href"));
+                history.add(historyItem);
             }
 
         } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching history: " + e.toString() + " " + e.getMessage());}

@@ -7,6 +7,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.test.suitebuilder.TestSuiteBuilder;
@@ -33,6 +36,7 @@ public class CoCoRaHS extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.main);
         mContext = this;
         placedAgent = PlacedAgent.getInstance(mContext, "c6ff9337c4f9");
@@ -181,10 +185,6 @@ public class CoCoRaHS extends Activity
         }
     }
 
-    public void TOAST(String msg) {
-        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
-    }
-
     void showOKAlertMsg(String title, String msg, final Boolean xfinish) {
         LOG(title + ": " + msg);
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -207,8 +207,57 @@ public class CoCoRaHS extends Activity
 
     private void showHistory() {
         setContentView(R.layout.history);
+        TextView txtStationId = (TextView) findViewById(R.id.txtStationId);
+        TextView txtStationName = (TextView) findViewById(R.id.txtStationName);
+        if(txtStationId != null && txtStationName != null) {
+            txtStationId.setText(comm.getStationId());
+            txtStationName.setText(comm.getStationName());
+        }
         progressDialog = ProgressDialog.show(CoCoRaHS.this, "", "Fetching History...", true);
         new HistoryTask().execute("");
+    }
+
+    private void addTableRow(String date, String time, String rain, String editLink, Boolean isHeader) {
+        final TableLayout table = (TableLayout) findViewById(R.id.history_table);
+        final TableRow tr = (TableRow) getLayoutInflater().inflate(R.layout.table_row_item, null);
+
+        // Fill out our cells
+        TextView tv1 = (TextView) tr.findViewById(R.id.cell_date);
+        tv1.setText(date);
+        TextView tv2 = (TextView) tr.findViewById(R.id.cell_time);
+        tv2.setText(time);
+        TextView tv3 = (TextView) tr.findViewById(R.id.cell_rain);
+        tv3.setText(rain);
+        TextView tv4 = (TextView) tr.findViewById(R.id.cell_editLink);
+        tv4.setText(editLink);
+        if(isHeader) {
+            tv1.setTypeface(null, Typeface.BOLD);
+            tv2.setTypeface(null, Typeface.BOLD);
+            tv3.setTypeface(null, Typeface.BOLD);
+            tv4.setTypeface(null, Typeface.BOLD);
+            tr.setFocusableInTouchMode(false);
+        }
+        tr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView tv1 = (TextView) v.findViewById(R.id.cell_date);
+                TextView tv2 = (TextView) v.findViewById(R.id.cell_time);
+                TextView tv3 = (TextView) v.findViewById(R.id.cell_rain);
+                TextView tv4 = (TextView) v.findViewById(R.id.cell_editLink);
+                CoCoRaHS.LOG("Clicked row: " + tv1.getText() + " " + tv2.getText() +
+                    " " + tv3.getText() + " " + tv4.getText());
+            }
+        });
+        table.addView(tr);
+
+        // Draw separator
+        TextView tv5 = new TextView(this);
+        tv5.setBackgroundColor(Color.parseColor("#80808080"));
+        tv5.setHeight(2);
+        table.addView(tv5);
+
+        // If you use context menu it should be registered for each table row
+        registerForContextMenu(tr);
     }
 
     class LoginTask extends AsyncTask<String, Void, Boolean> {
@@ -242,7 +291,6 @@ public class CoCoRaHS extends Activity
                 progressDialog.dismiss();
             } catch (Exception e) {}
             if(result) {
-                TOAST("Login OK");
                 setContentView(R.layout.report);
                 placedAgent.logPageView("Precip Report");
                 handleButtons();
@@ -338,11 +386,12 @@ public class CoCoRaHS extends Activity
 
     class HistoryTask extends AsyncTask<String, Void, Boolean> {
         private Exception exception;
+        ArrayList<CoCoRecord> history = null;
 
         protected Boolean doInBackground(String... args) {
             comm.clearReportOkReason();
             try {
-                ArrayList<CoCoRecord> history = comm.getPrecipHistory(7);
+                history = comm.getPrecipHistory(7);
             } catch (Exception e) {
                 this.exception = e;
                 return null;
@@ -358,7 +407,10 @@ public class CoCoRaHS extends Activity
                 showOKAlertMsg("Whoops!", "An error occurred: " + exception.getMessage(), false);
             }
             else if(result) {
-                //TODO: update the view with the history
+                addTableRow("DATE", "TIME", "PRECIP", "", true);
+                for(CoCoRecord item : history) {
+                    addTableRow(item.getDate(), item.getTime(), "" + item.getTotalPrecip() + "\"", item.getEditLink(), false);
+                }
             }
             else {
                 if(! comm.getReportOkReason().equals("")) {

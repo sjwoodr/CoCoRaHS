@@ -51,6 +51,19 @@
         </LinearLayout>
     </LinearLayout>
 
+    <ScrollView
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent" >
+        <TableLayout
+                android:id="@+id/history_table"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:paddingLeft="25dip"
+                android:paddingRight="25dip"
+                android:paddingTop="5dip"
+                />
+    </ScrollView>
+
 
 </LinearLayout>
 

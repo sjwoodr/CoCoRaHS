@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:focusable="true"
+    android:focusableInTouchMode="false"
+    android:clickable="true"
+    android:background="@android:drawable/list_selector_background">
+
+    <TextView
+        android:id="@+id/cell_date"
+        android:text="hello"
+        android:textSize="18dip"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textColor="#ffffff"
+    />
+    <TextView
+        android:id="@+id/cell_time"
+        android:text="there"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="18dip"
+        android:textColor="#ffffff"
+    />
+    <TextView
+            android:id="@+id/cell_rain"
+            android:text="there"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18dip"
+            android:textColor="#ffffff"
+            />
+    <TextView
+            android:id="@+id/cell_editLink"
+            android:visibility="gone"
+            android:gravity="left"
+            android:textSize="18dip"
+            android:textColor="#ffffff"
+            />
+</TableRow>
