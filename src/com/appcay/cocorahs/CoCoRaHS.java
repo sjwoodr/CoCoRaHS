@@ -65,7 +65,12 @@ public class CoCoRaHS extends Activity
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.history:
-                showHistory();
+                if(comm.isLoggedIn()) {
+                    showHistory();
+                }
+                else {
+                    showOKAlertMsg("Whoops!", "You must log in before viewing history.", false);
+                }
                 return true;
         }
         return false;
@@ -202,8 +207,8 @@ public class CoCoRaHS extends Activity
 
     private void showHistory() {
         setContentView(R.layout.history);
-        ArrayList<CoCoRecord> history = comm.getPrecipHistory(7);
-        //TODO: display precip report history
+        progressDialog = ProgressDialog.show(CoCoRaHS.this, "", "Fetching History...", true);
+        new HistoryTask().execute("");
     }
 
     class LoginTask extends AsyncTask<String, Void, Boolean> {
@@ -326,6 +331,41 @@ public class CoCoRaHS extends Activity
                 }
                 else {
                     showOKAlertMsg("Whoops!", "Failed to send the precipitation report to CoCoRaHS: Try again.", false);
+                }
+            }
+        }
+    }
+
+    class HistoryTask extends AsyncTask<String, Void, Boolean> {
+        private Exception exception;
+
+        protected Boolean doInBackground(String... args) {
+            comm.clearReportOkReason();
+            try {
+                ArrayList<CoCoRecord> history = comm.getPrecipHistory(7);
+            } catch (Exception e) {
+                this.exception = e;
+                return null;
+            }
+            return true;
+        }
+
+        protected void onPostExecute(Boolean result) {
+            try {
+                progressDialog.dismiss();
+            } catch (Exception e) {}
+            if(result == null) {
+                showOKAlertMsg("Whoops!", "An error occurred: " + exception.getMessage(), false);
+            }
+            else if(result) {
+                //TODO: update the view with the history
+            }
+            else {
+                if(! comm.getReportOkReason().equals("")) {
+                    showOKAlertMsg("Whoops!", "Failed to fetch CoCoRaHS history: " + comm.getReportOkReason(), false);
+                }
+                else {
+                    showOKAlertMsg("Whoops!", "Failed to fetch CoCoRaHS history: Try again.", false);
                 }
             }
         }

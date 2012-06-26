@@ -27,7 +27,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,6 +62,7 @@ public class CoCoComm {
     public String getObservedDate() { return observedDate; }
     public String getObservedTime() { return observedTime; }
     public String getReportOkReason() { return report_ok_reason; }
+    public void clearReportOkReason() { report_ok_reason = ""; }
 
     public String getStationId() {
         if(stationId.equals("")) {
@@ -106,12 +106,11 @@ public class CoCoComm {
         ArrayList<CoCoRecord> history = new ArrayList<CoCoRecord>();
 
         try {
-            BufferedReader in = null;
             HttpClient client = new DefaultHttpClient();
             HttpGet request = new HttpGet();
             request.setURI(new URI("http://www.cocorahs.org/Admin/MyDataEntry/ListDailyPrecipReports.aspx"));
+            CoCoRaHS.LOG("Executing request " + request.getURI());
             HttpResponse response = client.execute(request, localContext);
-
             String page = inputStreamToString(response.getEntity().getContent()).toString();
             String vs = findPattern(page, "__VIEWSTATE\" value=\"(.*)\"", 1);
             if((vs != null) && (!vs.equals(""))) {
@@ -119,7 +118,7 @@ public class CoCoComm {
             }
 
             Document doc = Jsoup.parse(page);
-            for(int x=0; x< 7; x++) {
+            for(int x=0; x< maxdays; x++) {
                 // look for items that ar <tr> and class name ends with Item (GridItem, GridAltItem)
                 Element gridItem = doc.select("tr[class$=Item]").select("tr").get(x);
                 //CoCoRaHS.LOG("gridItem: " + gridItem.toString());
@@ -127,7 +126,7 @@ public class CoCoComm {
                         + " " + gridItem.select("td").get(4).text() + " " + gridItem.select("a").get(0).attr("href"));
             }
 
-        } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching history: " + e.getMessage());}
+        } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching history: " + e.toString() + " " + e.getMessage());}
         return history;
     }
 
@@ -182,7 +181,6 @@ public class CoCoComm {
         try {
             while (m.find()) {
                 if(groupNum <= m.groupCount()) {
-                    CoCoRaHS.LOG("Found " + m.groupCount() + " matching groups");
                     result = m.group(groupNum);
                 } else {
                     CoCoRaHS.LOG("findPattern::Group not found!");
@@ -336,5 +334,9 @@ public class CoCoComm {
             CoCoRaHS.LOG("Exception in inputStreamToString(): " + e.getMessage());
         }
         return total;
+    }
+
+    public Boolean isLoggedIn() {
+        return !viewState.equals("");
     }
 }
