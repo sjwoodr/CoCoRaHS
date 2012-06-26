@@ -12,15 +12,11 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.test.suitebuilder.TestSuiteBuilder;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.placed.client.android.PlacedAgent;
-
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 public class CoCoRaHS extends Activity
 {
@@ -221,7 +217,6 @@ public class CoCoRaHS extends Activity
         final TableLayout table = (TableLayout) findViewById(R.id.history_table);
         final TableRow tr = (TableRow) getLayoutInflater().inflate(R.layout.table_row_item, null);
 
-        // Fill out our cells
         TextView tv1 = (TextView) tr.findViewById(R.id.cell_date);
         tv1.setText(date);
         TextView tv2 = (TextView) tr.findViewById(R.id.cell_time);
@@ -255,8 +250,6 @@ public class CoCoRaHS extends Activity
         tv5.setBackgroundColor(Color.parseColor("#80808080"));
         tv5.setHeight(2);
         table.addView(tv5);
-
-        // If you use context menu it should be registered for each table row
         registerForContextMenu(tr);
     }
 
@@ -264,7 +257,6 @@ public class CoCoRaHS extends Activity
         private Exception exception;
 
         protected Boolean doInBackground(String... args) {
-
             try {
                 String url = args[0];
                 String username = args[1];
@@ -339,7 +331,6 @@ public class CoCoRaHS extends Activity
         private Exception exception;
 
         protected Boolean doInBackground(String... args) {
-
             try {
                 String url = args[0];
                 String date = args[1];
