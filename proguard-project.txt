@@ -11,6 +11,12 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+-libraryjars /Users/stevewoodruff/android/workspace/CoCoRaHS/libs/placed-android-sdk-2.11.jar
+-keep public class com.placed.client.android.*
+-keep public class com.placed.client.android.**
+-keep public class com.placed.client.android.** {
+  public protected *;
+}
 
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
