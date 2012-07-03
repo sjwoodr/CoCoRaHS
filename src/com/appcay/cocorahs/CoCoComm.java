@@ -37,33 +37,12 @@ import java.util.regex.Pattern;
  * Date: 6/21/12
  */
 public class CoCoComm {
-    private HttpContext localContext = new BasicHttpContext();
-    private CookieStore cookieStore = new BasicCookieStore();
-    private String viewState = "";
-    private String stationId = "";
-    private String stationName = "";
-    private String observedAmPm = "";
-    private String observedTime = "";
-    private String observedDate = "";
-    private String report_ok_reason = "";
-
-    CoCoComm() {
-        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
-    }
-
-    public String getStationName() {
-        if(stationName.equals("")) {
-            fetchStationId();
-        }
-        return stationName;
-    }
-
     public String getObservedAmPm() { return observedAmPm; }
+
     public String getObservedDate() { return observedDate; }
     public String getObservedTime() { return observedTime; }
     public String getReportOkReason() { return report_ok_reason; }
     public void clearReportOkReason() { report_ok_reason = ""; }
-
     public String getStationId() {
         if(stationId.equals("")) {
             return fetchStationId();
@@ -340,5 +319,26 @@ public class CoCoComm {
 
     public Boolean isLoggedIn() {
         return !viewState.equals("");
+    }
+
+    protected HttpContext localContext = new BasicHttpContext();
+    protected CookieStore cookieStore = new BasicCookieStore();
+    protected String viewState = "";
+    protected String stationId = "";
+    protected String stationName = "";
+    protected String observedAmPm = "";
+    protected String observedTime = "";
+    protected String observedDate = "";
+    protected String report_ok_reason = "";
+
+    CoCoComm() {
+        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+    }
+
+    public String getStationName() {
+        if(stationName.equals("")) {
+            fetchStationId();
+        }
+        return stationName;
     }
 }
