@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
+import android.webkit.WebView;
 import android.widget.*;
 import com.placed.client.android.PlacedAgent;
 import java.util.ArrayList;
@@ -71,6 +72,17 @@ public class CoCoRaHS extends Activity
                 else {
                     showOKAlertMsg("Whoops!", "You must log in before viewing history.", false);
                 }
+                return true;
+            case R.id.report:
+                if(comm.isLoggedIn()) {
+                    showReport();
+                }
+                else {
+                    showOKAlertMsg("Whoops!", "You must log in before submitting reports.", false);
+                }
+                return true;
+            case R.id.about:
+                showAbout();
                 return true;
         }
         return false;
@@ -201,6 +213,54 @@ public class CoCoRaHS extends Activity
         }
     }
 
+    private void showReport() {
+        setContentView(R.layout.report);
+        placedAgent.logPageView("Precip Report");
+        handleButtons();
+        TextView tvId = (TextView) findViewById(R.id.txtStationId);
+        if(tvId != null) {
+            tvId.setText(comm.getStationId());
+        }
+        TextView tvName = (TextView) findViewById(R.id.txtStationName);
+        if(tvName != null) {
+            tvName.setText(comm.getStationName());
+        }
+
+        EditText etObTime = (EditText) findViewById(R.id.etObTime);
+        EditText etObDate = (EditText) findViewById(R.id.etObDate);
+        if(etObTime != null && etObDate != null) {
+            etObDate.setText(comm.getObservedDate());
+            etObTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
+        }
+
+        Spinner spnLoc = (Spinner) findViewById(R.id.spnLoc);
+        ArrayAdapter<CharSequence> levelsAdapter = null;
+        levelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.yesno , android.R.layout.simple_spinner_item);
+        levelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnLoc.setAdapter(levelsAdapter);
+        Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
+        ArrayAdapter<CharSequence> floodlevelsAdapter = null;
+        floodlevelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.flooding , android.R.layout.simple_spinner_item);
+        floodlevelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnFlood.setAdapter(floodlevelsAdapter);
+        EditText etDate = (EditText) findViewById(R.id.etObDate);
+        if(etDate != null) {
+            etDate.setText(comm.getObservedDate());
+        }
+        EditText etTime = (EditText) findViewById(R.id.etObTime);
+        if(etTime != null) {
+            etTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
+        }
+    }
+
+    private void showAbout() {
+        setContentView(R.layout.about);
+        WebView wvAbout = (WebView) findViewById(R.id.wvAbout);
+        if(wvAbout != null) {
+            wvAbout.loadDataWithBaseURL(null, this.getText(R.string.about).toString(), "text/html", "UTF-8", null);
+        }
+    }
+
     private void showHistory() {
         setContentView(R.layout.history);
         TextView txtStationId = (TextView) findViewById(R.id.txtStationId);
@@ -283,43 +343,7 @@ public class CoCoRaHS extends Activity
                 progressDialog.dismiss();
             } catch (Exception e) {}
             if(result) {
-                setContentView(R.layout.report);
-                placedAgent.logPageView("Precip Report");
-                handleButtons();
-                TextView tvId = (TextView) findViewById(R.id.txtStationId);
-                if(tvId != null) {
-                    tvId.setText(comm.getStationId());
-                }
-                TextView tvName = (TextView) findViewById(R.id.txtStationName);
-                if(tvName != null) {
-                    tvName.setText(comm.getStationName());
-                }
-
-                EditText etObTime = (EditText) findViewById(R.id.etObTime);
-                EditText etObDate = (EditText) findViewById(R.id.etObDate);
-                if(etObTime != null && etObDate != null) {
-                    etObDate.setText(comm.getObservedDate());
-                    etObTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
-                }
-
-                Spinner spnLoc = (Spinner) findViewById(R.id.spnLoc);
-                ArrayAdapter<CharSequence> levelsAdapter = null;
-                levelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.yesno , android.R.layout.simple_spinner_item);
-                levelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spnLoc.setAdapter(levelsAdapter);
-                Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
-                ArrayAdapter<CharSequence> floodlevelsAdapter = null;
-                floodlevelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.flooding , android.R.layout.simple_spinner_item);
-                floodlevelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spnFlood.setAdapter(floodlevelsAdapter);
-                EditText etDate = (EditText) findViewById(R.id.etObDate);
-                if(etDate != null) {
-                    etDate.setText(comm.getObservedDate());
-                }
-                EditText etTime = (EditText) findViewById(R.id.etObTime);
-                if(etTime != null) {
-                    etTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
-                }
+                showReport();
             }
             else {
                 showOKAlertMsg("Whoops!", "Login Failed.  Check your username and password then try again.", false);
