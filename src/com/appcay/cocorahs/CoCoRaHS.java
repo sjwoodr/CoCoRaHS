@@ -84,6 +84,9 @@ public class CoCoRaHS extends Activity
             case R.id.about:
                 showAbout();
                 return true;
+            case R.id.login:
+                showLogin();
+                return true;
         }
         return false;
     }
@@ -251,6 +254,13 @@ public class CoCoRaHS extends Activity
         if(etTime != null) {
             etTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
         }
+    }
+
+    private void showLogin() {
+        setContentView(R.layout.main);
+        placedAgent.logPageView("Login Screen");
+        comm = new CoCoComm();
+        handleButtons();
     }
 
     private void showAbout() {
