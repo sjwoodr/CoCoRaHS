@@ -302,7 +302,7 @@ public class CoCoComm {
         return report_ok;
     }
 
-    private StringBuilder inputStreamToString(InputStream is) {
+    protected StringBuilder inputStreamToString(InputStream is) {
         String line = "";
         StringBuilder total = new StringBuilder();
         BufferedReader rd = new BufferedReader(new InputStreamReader(is));
