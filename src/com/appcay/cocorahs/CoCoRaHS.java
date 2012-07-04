@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -268,6 +270,18 @@ public class CoCoRaHS extends Activity
         WebView wvAbout = (WebView) findViewById(R.id.wvAbout);
         if(wvAbout != null) {
             wvAbout.loadDataWithBaseURL(null, this.getText(R.string.about).toString(), "text/html", "UTF-8", null);
+        }
+        TextView tvSubtitle = (TextView) findViewById(R.id.txtSubtitle);
+        if(tvSubtitle != null) {
+            PackageManager pm = getPackageManager();
+            PackageInfo packageInfo = null;
+            String myVersion = "0.0.0";
+            try {
+                packageInfo = pm.getPackageInfo(this.getPackageName(), 0);
+                myVersion = packageInfo.versionName;
+            } catch (PackageManager.NameNotFoundException e) {
+            }
+            tvSubtitle.append("\n\nVersion: " + myVersion);
         }
     }
 
