@@ -51,6 +51,16 @@
         </LinearLayout>
     </LinearLayout>
 
+    <ScrollView
+        android:id="@+id/svReport"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:orientation="vertical"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:background="#2b6abf"
+                >
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="horizontal"
                   android:layout_width="fill_parent"
@@ -137,7 +147,6 @@
                 android:background="@drawable/rounded_edittext" />
     </LinearLayout>
 
-
     <Spinner
             android:id="@+id/spnLoc"
             android:drawSelectorOnTop="true"
@@ -166,6 +175,10 @@
         android:padding="5dip"
         android:layout_margin="20dip"
         android:text="     Submit     " />
+
+        </LinearLayout>
+    </ScrollView>
+
 
 </LinearLayout>
 
