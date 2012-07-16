@@ -5,4 +5,9 @@
     Like what you see?<p><a target="_new" href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=steve%40n9oh%2ecom&lc=US&item_name=Steve%20Woodruff&item_number=cocorahs&amount=5%2e00&currency_code=USD&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" alt="PayPal - The safer, easier way to pay online!"></a><p>
     Note that donations do not enable any additional functionality in this application.
 </font></div></body>]]></string>
+    <string name="signup"><![CDATA[<body bgcolor="2b6abf"><p><center><font color="#fff"><p><p>
+    <a target="_new" href="http://www.cocorahs.org/Content.aspx?page=application">Sign Up</a>
+</font></center></body>]]></string>
+
+    <string name="snow_detail"><u>Click To Specify Snow &amp; Flooding Info</u></string>
 </resources>

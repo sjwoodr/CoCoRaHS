@@ -29,6 +29,11 @@ public class CoCoRaHS extends Activity
     CoCoComm comm = new CoCoComm();
     static PlacedAgent placedAgent = null;
     Menu cocoMenu = null;
+    String new_snow_inches = "";
+    String new_snow_melted_core = "";
+    String total_snow_inches = "";
+    String total_snow_melted_core = "";
+    Integer flood_index = 0;
 
     /** Called when the activity is first created. */
     @Override
@@ -41,6 +46,19 @@ public class CoCoRaHS extends Activity
         placedAgent = PlacedAgent.getInstance(mContext, "c6ff9337c4f9");
         handleButtons();
         placedAgent.logPageView("Login Screen");
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setTitle("Really Exit?")
+                .setMessage("Are you sure you want to exit?")
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        CoCoRaHS.super.onBackPressed();
+                    }
+                }).create().show();
     }
 
     @Override
@@ -94,6 +112,68 @@ public class CoCoRaHS extends Activity
     }
 
     private void handleButtons() {
+
+        TextView tvSnow = (TextView) findViewById(R.id.tvSnow);
+        if(tvSnow != null) {
+            tvSnow.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    setContentView(R.layout.report_detail);
+                    placedAgent.logPageView("Snow Detail");
+                    Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
+                    ArrayAdapter<CharSequence> floodlevelsAdapter = null;
+                    floodlevelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.flooding , android.R.layout.simple_spinner_item);
+                    floodlevelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spnFlood.setAdapter(floodlevelsAdapter);
+                    EditText etNewSnow = (EditText) findViewById(R.id.etNewAccum);
+                    EditText etNewCore = (EditText) findViewById(R.id.etNewCore);
+                    EditText etTotalSnow = (EditText) findViewById(R.id.etTotalAccum);
+                    EditText etTotalCore = (EditText) findViewById(R.id.etTotalCore);
+                    if(etNewSnow != null && etNewCore != null && etTotalCore != null && etTotalSnow != null) {
+                        spnFlood.setSelection(flood_index);
+                        etNewSnow.setText(new_snow_inches);
+                        etNewCore.setText(new_snow_melted_core);
+                        etTotalSnow.setText(total_snow_inches);
+                        etTotalCore.setText(total_snow_melted_core);
+                    }
+                    handleButtons();
+                }
+            });
+        }
+
+        Button btnSave = (Button) findViewById(R.id.btnSave);
+        if(btnSave != null) {
+            btnSave.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    EditText etNewSnow = (EditText) findViewById(R.id.etNewAccum);
+                    EditText etNewCore = (EditText) findViewById(R.id.etNewCore);
+                    EditText etTotalSnow = (EditText) findViewById(R.id.etTotalAccum);
+                    EditText etTotalCore = (EditText) findViewById(R.id.etTotalCore);
+                    Spinner  spnFlood  = (Spinner)  findViewById(R.id.spnFlood);
+                    if(etNewSnow != null && etNewCore != null && etTotalCore != null && etTotalSnow != null) {
+                        LOG(new_snow_inches + " " + new_snow_melted_core + " " +
+                                total_snow_inches + " " + total_snow_melted_core + " " + flood_index);
+                        new_snow_inches = etNewSnow.getText().toString().trim();
+                        new_snow_melted_core = etNewCore.getText().toString().trim();
+                        total_snow_inches = etTotalSnow.getText().toString().trim();
+                        total_snow_melted_core = etTotalCore.getText().toString().trim();
+                        flood_index = spnFlood.getSelectedItemPosition();
+                        LOG(new_snow_inches + " " + new_snow_melted_core + " " +
+                                total_snow_inches + " " + total_snow_melted_core + " " + flood_index);
+                        if(flood_index < 0) flood_index = 0;
+                        if(total_snow_melted_core.equals("")) total_snow_melted_core = "NA";
+                        if(total_snow_inches.equals("")) total_snow_inches = "NA";
+                        if(new_snow_melted_core.equals("")) new_snow_melted_core = "NA";
+                        if(new_snow_inches.equals("")) new_snow_inches = "NA";
+                        LOG(new_snow_inches + " " + new_snow_melted_core + " " +
+                                total_snow_inches + " " + total_snow_melted_core + " " + flood_index);
+                    }
+
+                    showReport();
+                    handleButtons();
+                }
+            });
+        }
+
         CheckBox cbSaveLogin = (CheckBox) findViewById(R.id.cbSaveLogin);
         if(cbSaveLogin != null) {
             String username = getPreference("username", mContext);
@@ -112,6 +192,12 @@ public class CoCoRaHS extends Activity
             else {
                 cbSaveLogin.setChecked(false);
             }
+        }
+
+        WebView wvSignUp = (WebView) findViewById(R.id.wvSignUp);
+        if(wvSignUp != null) {
+            wvSignUp.loadDataWithBaseURL(null, this.getText(R.string.signup).toString(), "text/html", "UTF-8", null);
+            wvSignUp.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         }
 
         Button btnSubmitPrecip = (Button) findViewById(R.id.btnSubmit);
@@ -238,16 +324,19 @@ public class CoCoRaHS extends Activity
             etObTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
         }
 
+        /*
         Spinner spnLoc = (Spinner) findViewById(R.id.spnLoc);
         ArrayAdapter<CharSequence> levelsAdapter = null;
         levelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.yesno , android.R.layout.simple_spinner_item);
         levelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnLoc.setAdapter(levelsAdapter);
+
         Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
         ArrayAdapter<CharSequence> floodlevelsAdapter = null;
         floodlevelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.flooding , android.R.layout.simple_spinner_item);
         floodlevelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnFlood.setAdapter(floodlevelsAdapter);
+        */
         EditText etDate = (EditText) findViewById(R.id.etObDate);
         if(etDate != null) {
             etDate.setText(comm.getObservedDate());

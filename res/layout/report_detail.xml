@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#2b6abf"
+    >
+    
+    <ScrollView
+        android:id="@+id/svReport"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:orientation="vertical"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                      android:background="#2b6abf"
+                >
+
+            <TextView
+                android:id="@+id/txtHeadingNewSnow"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18dip"
+                android:textColor="#fff"
+                android:paddingLeft="10dip"
+                android:paddingBottom="0dip"
+                android:layout_marginBottom="0dip"
+                android:text="New Snow" />
+            <View android:layout_width="fill_parent"
+                  android:layout_height="2dip"
+                  android:layout_marginTop="5dip"
+                  android:layout_marginLeft="10dip"
+                  android:layout_marginRight="10dip"
+                  android:layout_marginBottom="10dip"
+                  android:background="#fff" />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                          android:orientation="horizontal"
+                          android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"
+                          android:paddingLeft="10dip"
+                          android:paddingRight="10dip"
+                          android:paddingBottom="10dip"
+                          android:background="#2b6abf">
+        <TextView
+                android:id="@+id/newAccum"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:text="Accumulation"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:textColor="#ffffff"/>
+        <EditText
+                android:id="@+id/etNewAccum"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:gravity="center"
+                android:hint="NA"
+                android:digits="0123456789."
+                android:inputType="numberDecimal"
+                android:background="@drawable/rounded_edittext" />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="10dip"
+                  android:paddingRight="10dip"
+                  android:paddingBottom="10dip"
+                  android:background="#2b6abf">
+        <TextView
+                android:id="@+id/txtNewCore"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:text="Melted Core"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:textColor="#ffffff"/>
+        <EditText
+                android:id="@+id/etNewCore"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:padding="10dip"
+                android:textSize="14dip"
+                android:gravity="center"
+                android:hint="NA"
+                android:digits="0123456789."
+                android:inputType="numberDecimal"
+                android:background="@drawable/rounded_edittext" />
+    </LinearLayout>
+
+            <TextView
+                    android:id="@+id/txtHeadingTotalSnow"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18dip"
+                    android:textColor="#fff"
+                    android:paddingLeft="10dip"
+                    android:paddingBottom="0dip"
+                    android:layout_marginBottom="0dip"
+                    android:text="Total Snow &amp; Ice" />
+            <View android:layout_width="fill_parent"
+                  android:layout_height="2dip"
+                  android:layout_marginTop="5dip"
+                  android:layout_marginLeft="10dip"
+                  android:layout_marginRight="10dip"
+                  android:layout_marginBottom="10dip"
+                  android:background="#fff" />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                          android:orientation="horizontal"
+                          android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"
+                          android:paddingLeft="10dip"
+                          android:paddingRight="10dip"
+                          android:paddingBottom="10dip"
+                          android:background="#2b6abf">
+                <TextView
+                        android:id="@+id/totalAccum"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="0px"
+                        android:text="Depth Total"
+                        android:padding="10dip"
+                        android:textSize="14dip"
+                        android:textColor="#ffffff"/>
+                <EditText
+                        android:id="@+id/etTotalAccum"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="0px"
+                        android:padding="10dip"
+                        android:textSize="14dip"
+                        android:gravity="center"
+                        android:hint="NA"
+                        android:digits="0123456789."
+                        android:inputType="numberDecimal"
+                        android:background="@drawable/rounded_edittext" />
+            </LinearLayout>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                          android:orientation="horizontal"
+                          android:layout_width="fill_parent"
+                          android:layout_height="wrap_content"
+                          android:paddingLeft="10dip"
+                          android:paddingRight="10dip"
+                          android:paddingBottom="10dip"
+                          android:background="#2b6abf">
+                <TextView
+                        android:id="@+id/txtTotalCore"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="0px"
+                        android:text="Melted Core"
+                        android:padding="10dip"
+                        android:textSize="14dip"
+                        android:textColor="#ffffff"/>
+                <EditText
+                        android:id="@+id/etTotalCore"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_width="0px"
+                        android:padding="10dip"
+                        android:textSize="14dip"
+                        android:gravity="center"
+                        android:hint="NA"
+                        android:digits="0123456789."
+                        android:inputType="numberDecimal"
+                        android:background="@drawable/rounded_edittext" />
+            </LinearLayout>
+
+
+            <TextView
+                    android:id="@+id/txtHeadingFlood"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18dip"
+                    android:textColor="#fff"
+                    android:paddingLeft="10dip"
+                    android:paddingBottom="0dip"
+                    android:layout_marginBottom="0dip"
+                    android:text="Flooding Info" />
+            <View android:layout_width="fill_parent"
+                  android:layout_height="2dip"
+                  android:layout_marginTop="5dip"
+                  android:layout_marginLeft="10dip"
+                  android:layout_marginRight="10dip"
+                  android:layout_marginBottom="10dip"
+                  android:background="#fff" />
+
+    <Spinner
+            android:id="@+id/spnFlood"
+            android:drawSelectorOnTop="true"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_marginLeft="15dip"
+            android:layout_marginRight="15dip"
+            />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:background="@drawable/rounded_button"
+        android:textSize="18dip"
+        android:layout_gravity="center"
+        android:layout_margin="10dip"
+        android:padding="5dip"
+        android:text="     Return     " />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>
+

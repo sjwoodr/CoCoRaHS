@@ -154,16 +154,36 @@
             android:layout_width="fill_parent"
             android:layout_marginLeft="25dip"
             android:layout_marginRight="25dip"
+            android:visibility="gone"
             />
 
-    <Spinner
-            android:id="@+id/spnFlood"
-            android:drawSelectorOnTop="true"
+
+
+            <TextView
+                    android:id="@+id/tvSnow"
+                    android:background="#2b6abf"
+                    android:gravity="center"
+                    android:textColor="#fff"
+                    android:text="@string/snow_detail"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:layout_marginLeft="10dip"
+                    android:layout_marginRight="10dip"
+                    android:layout_marginBottom="10dip"
+                    />
+
+            <EditText
+            android:id="@+id/etNotes"
+            android:layout_margin="10dip"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:layout_marginLeft="25dip"
-            android:layout_marginRight="25dip"
-            />
+            android:padding="10dip"
+            android:textSize="14dip"
+            android:text=""
+            android:hint="optional notes"
+            android:gravity="center"
+            android:background="@drawable/rounded_edittext" />
+
 
     <Button
         android:id="@+id/btnSubmit"

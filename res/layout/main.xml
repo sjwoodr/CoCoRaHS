@@ -75,5 +75,12 @@
         android:layout_margin="20dip"
         android:text="     Login     " />
 
+    <WebView
+            android:id="@+id/wvSignUp"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:background="#2b6abf"
+            />
+
 </LinearLayout>
 
