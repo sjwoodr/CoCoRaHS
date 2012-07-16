@@ -219,22 +219,24 @@ public class CoCoComm {
         return login_ok;
     }
 
-    public Boolean postPrecipReport(String url, String date, String time, String rain, String regLocation, String flooding) {
+    public Boolean postPrecipReport(String url, String date, String time, String rain, String flooding,
+                                    String notes,
+                                    String new_snow, String new_snow_core, String total_snow, String total_snow_core) {
         HttpClient httpclient = new DefaultHttpClient();
         Boolean report_ok = false;
         HttpPost httppost = new HttpPost(url);
-        String loc = "1";
         String ampm = "AM";
         if(time.contains("PM")) {
             ampm = "PM";
         }
         time = time.replaceAll(" AM", "").replaceAll(" PM", "");
-        if(! regLocation.equals("Registered Location")) {
-            loc = "0";
-        }
+        String loc = "1";  // used to specify this, but no longer
         int d = flooding.indexOf(" ");
         if (d > 0) {
             flooding = flooding.substring(0, d);
+        }
+        if((notes == null) || notes.equals("")) {
+            notes = "Submitted via CoCoRaHS Observer for Android";
         }
         String[] dateParts = date.split("/");
         String funkyDate = dateParts[2] + "-" + dateParts[0] + "-" + dateParts[1] + "-0-0-0-0";
@@ -252,11 +254,11 @@ public class CoCoComm {
             nameValuePairs.add(new BasicNameValuePair("frmReport:tObsTime:ddlAmPm", ampm));
             nameValuePairs.add(new BasicNameValuePair("frmReport:prTotalPrecip:tbPrecip", rain));
             nameValuePairs.add(new BasicNameValuePair("frmReport:rblTakenAtRegisteredLocation", loc));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:txtNotes", "Submitted via CoCoRaHS Observer for Android"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:prNewSnowAmount:tbPrecip", "NA"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:prSnowCore:tbPrecip", "NA"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:prTotalSnowDepth:tbPrecip", "NA"));
-            nameValuePairs.add(new BasicNameValuePair("frmReport:prSWE:tbPrecip", "NA"));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:txtNotes", notes));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prNewSnowAmount:tbPrecip", new_snow));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prSnowCore:tbPrecip", new_snow_core));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prTotalSnowDepth:tbPrecip", total_snow));
+            nameValuePairs.add(new BasicNameValuePair("frmReport:prSWE:tbPrecip", total_snow_core));
             nameValuePairs.add(new BasicNameValuePair("frmReport:tbPrecipBegan", ""));
             nameValuePairs.add(new BasicNameValuePair("frmReport:tbPrecipEnded", ""));
             nameValuePairs.add(new BasicNameValuePair("frmReport:tbHeavyPrecipBegan", ""));

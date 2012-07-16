@@ -34,6 +34,9 @@ public class CoCoRaHS extends Activity
     String total_snow_inches = "";
     String total_snow_melted_core = "";
     Integer flood_index = 0;
+    String flood_text = "No flooding occurred";
+    String notes = "";
+    String rain = "0.00";
 
     /** Called when the activity is first created. */
     @Override
@@ -117,6 +120,14 @@ public class CoCoRaHS extends Activity
         if(tvSnow != null) {
             tvSnow.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+                    EditText etNotes = (EditText) findViewById(R.id.etNotes);
+                    if(etNotes != null) {
+                        notes = etNotes.getText().toString().trim();
+                    }
+                    EditText etRain = (EditText) findViewById(R.id.etObRain);
+                    if(etRain != null) {
+                        rain = etRain.getText().toString().trim();
+                    }
                     setContentView(R.layout.report_detail);
                     placedAgent.logPageView("Snow Detail");
                     Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
@@ -150,25 +161,28 @@ public class CoCoRaHS extends Activity
                     EditText etTotalCore = (EditText) findViewById(R.id.etTotalCore);
                     Spinner  spnFlood  = (Spinner)  findViewById(R.id.spnFlood);
                     if(etNewSnow != null && etNewCore != null && etTotalCore != null && etTotalSnow != null) {
-                        LOG(new_snow_inches + " " + new_snow_melted_core + " " +
-                                total_snow_inches + " " + total_snow_melted_core + " " + flood_index);
                         new_snow_inches = etNewSnow.getText().toString().trim();
                         new_snow_melted_core = etNewCore.getText().toString().trim();
                         total_snow_inches = etTotalSnow.getText().toString().trim();
                         total_snow_melted_core = etTotalCore.getText().toString().trim();
                         flood_index = spnFlood.getSelectedItemPosition();
-                        LOG(new_snow_inches + " " + new_snow_melted_core + " " +
-                                total_snow_inches + " " + total_snow_melted_core + " " + flood_index);
+                        flood_text = spnFlood.getSelectedItem().toString();
                         if(flood_index < 0) flood_index = 0;
                         if(total_snow_melted_core.equals("")) total_snow_melted_core = "NA";
                         if(total_snow_inches.equals("")) total_snow_inches = "NA";
                         if(new_snow_melted_core.equals("")) new_snow_melted_core = "NA";
                         if(new_snow_inches.equals("")) new_snow_inches = "NA";
-                        LOG(new_snow_inches + " " + new_snow_melted_core + " " +
-                                total_snow_inches + " " + total_snow_melted_core + " " + flood_index);
                     }
 
                     showReport();
+                    EditText etNotes = (EditText) findViewById(R.id.etNotes);
+                    if(etNotes != null) {
+                        etNotes.setText(notes);
+                    }
+                    EditText etRain = (EditText) findViewById(R.id.etObRain);
+                    if(etRain != null) {
+                        etRain.setText(rain);
+                    }
                     handleButtons();
                 }
             });
@@ -207,14 +221,15 @@ public class CoCoRaHS extends Activity
                     EditText etObTime = (EditText) findViewById(R.id.etObTime);
                     EditText etObDate = (EditText) findViewById(R.id.etObDate);
                     EditText etObRain = (EditText) findViewById(R.id.etObRain);
-                    Spinner spnLoc = (Spinner) findViewById(R.id.spnLoc);
-                    Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
-                    if(etObTime != null && etObDate != null && etObRain != null && spnLoc != null && spnFlood != null) {
+                    EditText etNotes = (EditText) findViewById(R.id.etNotes);
+                    if(etObTime != null && etObDate != null && etObRain != null && etNotes != null) {
                         progressDialog = ProgressDialog.show(CoCoRaHS.this, "", "Submitting...", true);
                         new PrecipTask().execute("http://www.cocorahs.org/Admin/MyDataEntry/DailyPrecipReport.aspx",
                                 etObDate.getText().toString().trim(), etObTime.getText().toString().trim(),
                                 etObRain.getText().toString().trim(),
-                                spnLoc.getSelectedItem().toString(), spnFlood.getSelectedItem().toString());
+                                flood_text, etNotes.getText().toString().trim(),
+                                new_snow_inches, new_snow_melted_core,
+                                total_snow_inches, total_snow_melted_core);
                     }
                 }
             });
@@ -473,10 +488,15 @@ public class CoCoRaHS extends Activity
                 String date = args[1];
                 String time = args[2];
                 String rain = args[3];
-                String loc = args[4];
-                String flooding = args[5];
+                //String loc = args[4];
+                String flooding = args[4];
+                String notes = args[5];
+                String new_snow = args[6];
+                String new_snow_core = args[7];
+                String total_snow = args[8];
+                String total_snow_core = args[9];
                 comm.clearStation();
-                if(comm.postPrecipReport(url,date,time,rain,loc,flooding)) {
+                if(comm.postPrecipReport(url,date,time,rain,flooding,notes,new_snow,new_snow_core,total_snow,total_snow_core)) {
                     LOG("Precip Report Sent OK.");
                     return true;
                 }
