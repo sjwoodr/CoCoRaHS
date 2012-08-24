@@ -22,7 +22,7 @@ public class CoCoRest extends CoCoComm {
         return history;
     }
 
-    private String fetchStationId() {
+    public String fetchStationId() {
         // unsure if we'll need this or if it'll be in the json
         return null;
     }

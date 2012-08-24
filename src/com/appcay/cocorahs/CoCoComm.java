@@ -76,6 +76,7 @@ public class CoCoComm {
             in.close();
             String page = sb.toString();
             vs = findPattern(page, "__VIEWSTATE\" value=\"(.*)\"", 1);
+            vs = vs.split(" ")[0].replaceAll("\"", "");
         } catch (Exception e) { CoCoRaHS.LOG("Exception occurred while fetching viewState: " + e.getMessage());}
         viewState = vs;
         return vs;
@@ -92,6 +93,7 @@ public class CoCoComm {
             HttpResponse response = client.execute(request, localContext);
             String page = inputStreamToString(response.getEntity().getContent()).toString();
             String vs = findPattern(page, "__VIEWSTATE\" value=\"(.*)\"", 1);
+            vs = vs.split(" ")[0].replaceAll("\"", "");
             if((vs != null) && (!vs.equals(""))) {
                 viewState = vs;
             }
@@ -111,7 +113,7 @@ public class CoCoComm {
         return history;
     }
 
-    private String fetchStationId() {
+    public String fetchStationId() {
         String vs = "";
         String id = "";
         String name = "";
@@ -137,6 +139,7 @@ public class CoCoComm {
             in.close();
             String page = sb.toString();
             vs = findPattern(page, "__VIEWSTATE\" value=\"(.*)\"", 1);
+            vs = vs.split(" ")[0].replaceAll("\"", "");
             if((vs != null) && (!vs.equals(""))) {
                 viewState = vs;
             }
@@ -180,7 +183,6 @@ public class CoCoComm {
         HttpPost httppost = new HttpPost(url);
         String viewState = "";
 
-        CoCoRaHS.LOG("Fetching viewState...");
         viewState = getViewState();
         if(viewState.equals("")) {
             CoCoRaHS.LOG("Failed to fetch proper viewState for login page.");
@@ -295,6 +297,10 @@ public class CoCoComm {
                 }
             }
 
+            if(!report_ok) {
+                CoCoRaHS.LOG(str);
+            }
+
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -320,7 +326,11 @@ public class CoCoComm {
     }
 
     public Boolean isLoggedIn() {
-        return !viewState.equals("");
+        Boolean rc = true;
+        if(viewState == null || viewState.equals("")) {
+            rc = false;
+        }
+        return rc;
     }
 
     protected HttpContext localContext = new BasicHttpContext();
@@ -335,6 +345,10 @@ public class CoCoComm {
 
     CoCoComm() {
         localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+    }
+
+    public String getShortViewState() {
+        return "" + viewState.length() + viewState.substring(0,8);
     }
 
     public String getStationName() {

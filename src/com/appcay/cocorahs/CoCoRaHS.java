@@ -16,10 +16,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.*;
 import com.placed.client.android.PlacedAgent;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class CoCoRaHS extends Activity
 {
@@ -37,6 +39,7 @@ public class CoCoRaHS extends Activity
     String flood_text = "No flooding occurred";
     String notes = "";
     String rain = "0.00";
+    int[] keycodes = new int[5];
 
     /** Called when the activity is first created. */
     @Override
@@ -49,6 +52,7 @@ public class CoCoRaHS extends Activity
         placedAgent = PlacedAgent.getInstance(mContext, "c6ff9337c4f9");
         handleButtons();
         placedAgent.logPageView("Login Screen");
+
     }
 
     @Override
@@ -98,6 +102,7 @@ public class CoCoRaHS extends Activity
                 return true;
             case R.id.report:
                 if(comm.isLoggedIn()) {
+                    comm.fetchStationId();
                     showReport();
                 }
                 else {
@@ -268,6 +273,50 @@ public class CoCoRaHS extends Activity
         }
     }
 
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        keycodes[0] = keycodes[1];
+        keycodes[1] = keycodes[2];
+        keycodes[2] = keycodes[3];
+        keycodes[3] = keycodes[4];
+        keycodes[4] = keyCode;
+
+        // volume UP UP DOWN DOWN UP will send me logs
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            if ((keycodes[0] == KeyEvent.KEYCODE_VOLUME_UP)
+                    && (keycodes[1] == KeyEvent.KEYCODE_VOLUME_UP)
+                    && (keycodes[2] == KeyEvent.KEYCODE_VOLUME_DOWN)
+                    && (keycodes[3] == KeyEvent.KEYCODE_VOLUME_DOWN)) {
+                LOG("Getting Logs...");
+                Logs l = new Logs();
+                ArrayList<String> loglines = l.getLogs();
+                Toast.makeText(mContext, "Gathering logs...",
+                        Toast.LENGTH_LONG).show();
+                Iterator<String> iterator = loglines.iterator();
+                String emailtext = "SecuRemote Logs\n";
+                while(iterator.hasNext()) {
+                    emailtext = emailtext + iterator.next().toString() + "\n";
+                }
+                String sub = "CoCoRaHS Debug Logs from Android phone";
+                l.sendLogs(mContext,"support@appcay.com", sub, emailtext);
+            }
+        }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
     protected Dialog onCreateDialog(int id) {
         Dialog dialog = null;
         switch (id) {
@@ -319,6 +368,9 @@ public class CoCoRaHS extends Activity
         }
     }
 
+
+    //TODO: need to reload the precip report form to get right viewstate
+
     private void showReport() {
         setContentView(R.layout.report);
         placedAgent.logPageView("Precip Report");
@@ -339,19 +391,6 @@ public class CoCoRaHS extends Activity
             etObTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
         }
 
-        /*
-        Spinner spnLoc = (Spinner) findViewById(R.id.spnLoc);
-        ArrayAdapter<CharSequence> levelsAdapter = null;
-        levelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.yesno , android.R.layout.simple_spinner_item);
-        levelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnLoc.setAdapter(levelsAdapter);
-
-        Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
-        ArrayAdapter<CharSequence> floodlevelsAdapter = null;
-        floodlevelsAdapter = ArrayAdapter.createFromResource(mContext, R.array.flooding , android.R.layout.simple_spinner_item);
-        floodlevelsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnFlood.setAdapter(floodlevelsAdapter);
-        */
         EditText etDate = (EditText) findViewById(R.id.etObDate);
         if(etDate != null) {
             etDate.setText(comm.getObservedDate());
@@ -495,7 +534,7 @@ public class CoCoRaHS extends Activity
                 String new_snow_core = args[7];
                 String total_snow = args[8];
                 String total_snow_core = args[9];
-                comm.clearStation();
+                //comm.clearStation();
                 if(comm.postPrecipReport(url,date,time,rain,flooding,notes,new_snow,new_snow_core,total_snow,total_snow_core)) {
                     LOG("Precip Report Sent OK.");
                     return true;
