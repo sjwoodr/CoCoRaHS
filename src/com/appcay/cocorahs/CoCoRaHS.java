@@ -1,9 +1,6 @@
 package com.appcay.cocorahs;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
+import android.app.*;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -20,7 +17,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.*;
 import com.placed.client.android.PlacedAgent;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 
 public class CoCoRaHS extends Activity
@@ -41,6 +42,9 @@ public class CoCoRaHS extends Activity
     String rain = "0.00";
     int[] keycodes = new int[5];
 
+    static final int TIME_DIALOG_ID = 0;
+    static final int DATE_DIALOG_ID = 1;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -53,6 +57,9 @@ public class CoCoRaHS extends Activity
         handleButtons();
         placedAgent.logPageView("Login Screen");
 
+        // hide the soft keyboard
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
 
     @Override
@@ -119,7 +126,60 @@ public class CoCoRaHS extends Activity
         return false;
     }
 
+
+    // the callback received when the user "sets" the time in the dialog
+    private TimePickerDialog.OnTimeSetListener mTimeSetListener =
+            new TimePickerDialog.OnTimeSetListener() {
+                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                    EditText etObTime = (EditText) findViewById(R.id.etObTime);
+                    Calendar mCalendar = Calendar.getInstance();
+                    mCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    mCalendar.set(Calendar.MINUTE, minute);
+                    SimpleDateFormat mSDF = new SimpleDateFormat("hh:mm a");
+                    String time = mSDF.format(mCalendar.getTime());
+                    etObTime.setText("" + time);
+                }
+            };
+    private DatePickerDialog.OnDateSetListener mDateSetListener =
+            new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker view,
+                                      int year, int monthOfYear,
+                                      int dayOfMonth) {
+                    EditText etObDate = (EditText) findViewById(R.id.etObDate);
+                    etObDate.setText("" + (monthOfYear+1) + "/" +
+                            dayOfMonth + "/" + year);
+                }
+            };
+
     private void handleButtons() {
+        EditText etObDate = (EditText) findViewById(R.id.etObDate);
+        if(etObDate != null) {
+            etObDate.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    showDialog(DATE_DIALOG_ID);
+                }
+            });
+            etObDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) showDialog(DATE_DIALOG_ID);
+                }
+            });
+        }
+
+        EditText etObTime = (EditText) findViewById(R.id.etObTime);
+        if(etObTime != null) {
+            etObTime.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    showDialog(TIME_DIALOG_ID);
+                }
+            });
+            etObTime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if(hasFocus) showDialog(TIME_DIALOG_ID);
+                }
+            });
+        }
 
         TextView tvSnow = (TextView) findViewById(R.id.tvSnow);
         if(tvSnow != null) {
@@ -207,10 +267,64 @@ public class CoCoRaHS extends Activity
             }
             if(username.length() > 0 && password.length() > 0) {
                 cbSaveLogin.setChecked(true);
+                try { etPass.requestFocus(); } catch (Exception e) {
+                  // ignore
+                }
             }
             else {
                 cbSaveLogin.setChecked(false);
             }
+
+            // make the enter key in password auto-click submit.
+            etPass.setOnKeyListener(new View.OnKeyListener() {
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    // If the event is a key-down event on the "enter" button
+                    if ((event != null) && (v != null) && (event.getAction() == KeyEvent.ACTION_DOWN) &&
+                            (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                        // Perform action on key press
+                        Button btnLogin = (Button) findViewById(R.id.btnLogin);
+                        btnLogin.performClick();
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+
+        // make the enter key in etObRain hide keyboard.
+        EditText etObRain = (EditText) findViewById(R.id.etObRain);
+        if(etObRain != null) {
+            etObRain.setOnKeyListener(new View.OnKeyListener() {
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    // If the event is a key-down event on the "enter" button
+                    if ((event != null) && (v != null) && (event.getAction() == KeyEvent.ACTION_DOWN) &&
+                            (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                        // hide the soft keyboard
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+
+        // make the enter key in etNotes hide keyboard.
+        EditText etNotes = (EditText) findViewById(R.id.etNotes);
+        if(etNotes != null) {
+            etNotes.setOnKeyListener(new View.OnKeyListener() {
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    // If the event is a key-down event on the "enter" button
+                    if ((event != null) && (v != null) && (event.getAction() == KeyEvent.ACTION_DOWN) &&
+                            (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                        // hide the soft keyboard
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                        return true;
+                    }
+                    return false;
+                }
+            });
         }
 
         WebView wvSignUp = (WebView) findViewById(R.id.wvSignUp);
@@ -319,7 +433,18 @@ public class CoCoRaHS extends Activity
 
     protected Dialog onCreateDialog(int id) {
         Dialog dialog = null;
+        Calendar calendar = Calendar.getInstance();
         switch (id) {
+            case TIME_DIALOG_ID:
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int min = calendar.get(Calendar.MINUTE);
+                return new TimePickerDialog(this,
+                        mTimeSetListener, hour, min, false);
+            case DATE_DIALOG_ID:
+                int year       = calendar.get(Calendar.YEAR);
+                int monthOfYear   = calendar.get(Calendar.MONTH);
+                int dayOfMonth     = calendar.get(Calendar.DAY_OF_MONTH);
+                return new DatePickerDialog(this,mDateSetListener, year, monthOfYear, dayOfMonth);
             default:
                 dialog = null;
         }
@@ -327,7 +452,7 @@ public class CoCoRaHS extends Activity
     }
 
     public static String savePreference(String key, String value, Context c) {
-        String value2 = value.replaceAll("[^\\d\\w\\.@]", "").replaceAll("\000", "");
+        String value2 = value.replaceAll("[^\\d\\w\\.@-]", "").replaceAll("\000", "");
         SharedPreferences mySharedPrefs = c.getSharedPreferences("CoCoRaHS-Prefs",
                 Activity.MODE_WORLD_WRITEABLE);
         SharedPreferences.Editor editor = mySharedPrefs.edit();
@@ -399,6 +524,10 @@ public class CoCoRaHS extends Activity
         if(etTime != null) {
             etTime.setText(comm.getObservedTime() + " " + comm.getObservedAmPm());
         }
+
+        // hide the soft keyboard
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
 
     private void showLogin() {
