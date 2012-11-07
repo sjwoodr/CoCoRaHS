@@ -153,6 +153,21 @@ public class CoCoRaHS extends Activity
             };
 
     private void handleButtons() {
+        CheckBox ckTrace = (CheckBox) findViewById(R.id.cktrace);
+        if(ckTrace != null) {
+            ckTrace.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    EditText etObRain = (EditText) findViewById(R.id.etObRain);
+                    if (isChecked) {
+                        etObRain.setText("T");
+                    }
+                    else {
+                        etObRain.setText("0.00");
+                    }
+                }
+            });
+        }
+
         EditText etObDate = (EditText) findViewById(R.id.etObDate);
         if(etObDate != null) {
             etObDate.setOnClickListener(new View.OnClickListener() {
