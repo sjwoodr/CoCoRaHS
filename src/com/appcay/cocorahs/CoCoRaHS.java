@@ -40,7 +40,10 @@ public class CoCoRaHS extends Activity
     String flood_text = "No flooding occurred";
     String notes = "";
     String rain = "0.00";
+    String obtime = "6:59 AM";
+    String obdate = "10/11/2012";
     int[] keycodes = new int[5];
+    public static String myVersion = "0.0.0";
 
     static final int TIME_DIALOG_ID = 0;
     static final int DATE_DIALOG_ID = 1;
@@ -56,6 +59,14 @@ public class CoCoRaHS extends Activity
         placedAgent = PlacedAgent.getInstance(mContext, "c6ff9337c4f9");
         handleButtons();
         placedAgent.logPageView("Login Screen");
+
+        PackageManager pm = getPackageManager();
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = pm.getPackageInfo(this.getPackageName(), 0);
+            myVersion = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
 
         // hide the soft keyboard
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -208,6 +219,15 @@ public class CoCoRaHS extends Activity
                     if(etRain != null) {
                         rain = etRain.getText().toString().trim();
                     }
+                    EditText obTime = (EditText) findViewById(R.id.etObTime);
+                    if(obTime != null) {
+                        obtime = obTime.getText().toString().trim();
+                    }
+                    EditText obDate = (EditText) findViewById(R.id.etObDate);
+                    if(obDate != null) {
+                        obdate = obDate.getText().toString().trim();
+                    }
+
                     setContentView(R.layout.report_detail);
                     placedAgent.logPageView("Snow Detail");
                     Spinner spnFlood = (Spinner) findViewById(R.id.spnFlood);
@@ -262,6 +282,14 @@ public class CoCoRaHS extends Activity
                     EditText etRain = (EditText) findViewById(R.id.etObRain);
                     if(etRain != null) {
                         etRain.setText(rain);
+                    }
+                    EditText obTime = (EditText) findViewById(R.id.etObTime);
+                    if(obTime != null) {
+                        obTime.setText(obtime);
+                    }
+                    EditText obDate = (EditText) findViewById(R.id.etObDate);
+                    if(obDate != null) {
+                        obDate.setText(obdate);
                     }
                     handleButtons();
                 }

@@ -238,7 +238,7 @@ public class CoCoComm {
             flooding = flooding.substring(0, d);
         }
         if((notes == null) || notes.equals("")) {
-            notes = "Submitted via CoCoRaHS Observer for Android";
+            notes = "Submitted via CoCoRaHS Observer for Android version " + CoCoRaHS.myVersion;
         }
         String[] dateParts = date.split("/");
         String funkyDate = dateParts[2] + "-" + dateParts[0] + "-" + dateParts[1] + "-0-0-0-0";
